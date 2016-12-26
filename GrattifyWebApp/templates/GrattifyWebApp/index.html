@@ -1,0 +1,38 @@
+<center>
+	<h1>Grand Theft Audio</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'GrattifyWebApp:addSong' %}" method="post">
+{% csrf_token %}
+<input type="text" name="artist" id="artist" value="{{ artist }}" placeholder="Artist" autofocus/>
+<input type="text" name="title" id="title" value="{{ title }}" placeholder="Track or Album Title"/>
+<input type="text" name="ytlink" id="ytlink" value="{{ ytlink }}" placeholder="Youtube Link (optional)"/>
+<input type="radio" name="entryType" value="track" checked>Track
+<input type="radio" name="entryType" value="album">Album
+<button type="submit" name="button" value="add">Add</button><br>
+<button type="submit" name="button" value="clear">Clear All</button><br>
+
+
+</form>
+
+<table id="trackStack" border="1">
+	<thead>
+		<tr>
+			<th>Artist</th>
+			<th>Track</th>
+		</tr>
+	</thead>
+	{% for track in tracks %}
+	<tr>
+		<td>
+			{{ track.0 }}
+		</td>
+		<td>
+			{{ track.1 }}
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+
+</center>
