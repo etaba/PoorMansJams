@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -48,6 +48,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #custom middleware
+    'GrattifyWebApp.middleware.EndSession'
 ]
 
 ROOT_URLCONF = 'GrattifyWeb.urls'
@@ -63,8 +65,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                #custom middleware
-                'GrattifyWeb.GrattifyWebApp.middleware.EndSession'
             ],
         },
     },
@@ -80,7 +80,7 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 #SESSION_COOKIE_AGE = 60 * 60 # set sessino expiration timeout to 1 hour
-SESSION_TIMEOUT = 60
+SESSION_TIMEOUT = 600000
 SESSION_SAVE_EVERY_REQUEST = True
 
 WSGI_APPLICATION = 'GrattifyWeb.wsgi.application'
