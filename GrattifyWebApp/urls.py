@@ -7,5 +7,7 @@ app_name = 'GrattifyWebApp'
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^addsong',views.addSong, name = 'addSong')
+    url(r'^getAlbumTracks',views.getAlbumTracks, name = 'getAlbumTracks'),
+    url(r'^downloadTracks',views.downloadTracks, name = 'downloadTracks'),
+    url(r'^serveZip',views.serveZip, name = 'serveZip')
 ]

@@ -49,7 +49,8 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #custom middleware
-    'GrattifyWebApp.middleware.EndSession'
+    'GrattifyWebApp.middleware.EndSession',
+    'GrattifyWebApp.middleware.JSONMiddleware'
 ]
 
 ROOT_URLCONF = 'GrattifyWeb.urls'
