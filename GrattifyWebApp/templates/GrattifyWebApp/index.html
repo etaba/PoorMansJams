@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-
+<!--{% load static %}-->
 <head>
 	<title>Grand Theft Audio</title>
 	<center><h1>Grand Theft Audio</h1><center>
@@ -13,6 +13,10 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<!-- Latest compiled JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<!-- Angular Routes -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+
+	<script src="{% static "script.js" %}"></script>
 </head>
 <body>
 	<div ng-app="myApp" ng-controller="myCtrl" class="container-fluid">
@@ -20,21 +24,28 @@
 
 	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 	{% csrf_token %}
-	<input type="radio" ng-model="entryType" value="track"/>Track
-	<input type="radio" ng-model="entryType" value="album"/>Album
-	<input type="text"  ng-model="track.artist" placeholder="Artist" ng-keypress="onKeyPress($event)" id="artist_input"/>
-	<input type="text"  ng-model="track.title"  placeholder="Track or Album Title" ng-keypress="onKeyPress($event)"/>
-	<input type="text"  ng-model="track.ytlink" placeholder="Youtube Link (optional)" ng-keypress="onKeyPress($event)"/>
-	<button ng-click="addTrack()" id="add_button">Add</button>
+	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="track"/>Track
+	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="album"/>Album
+	<input type="text"  ng-model="entry.artist" placeholder="Artist" ng-keypress="onKeyPress($event,entry)" id="artist_input"/>
+	<input type="text"  ng-model="entry.title"  placeholder="Track or Album Title" ng-keypress="onKeyPress($event,entry)"/>
+	<input type="text"  ng-model="entry.ytlink" placeholder="Youtube Link (optional)" ng-keypress="onKeyPress($event,entry)"/>
+	<button ng-click="processEntry(entry)" id="add_button">Add</button>
 	<br>
+	Download Spotify Playlists:
+	<input type="text"  ng-model="spotify.username"  placeholder="Username " ng-keypress="onKeyPress($event,entry)"/>
+	<input type="text"  ng-model="spotify.username"  placeholder="Password " ng-keypress="onKeyPress($event,entry)"/>
+	<button ng-click="loginSpotify()">Get Spotify Playlists</button>
+	<a ng-href="{{ spotifyAuthEndpoint }}">Get Spotify 2</a>
 	<br>
 		<button ng-click="downloadTracks()" class="btn btn-primary">
 			<span style="font-size:1.5em;vertical-align:middle" title="Download All" class="glyphicon glyphicon-download-alt"></span>
 		</button>
 	<br>
 
-
 	{% verbatim %}
+
+		EVENTS DETECTED: {{ eventLog }}
+
 	<table ng-if="tracks.length > 0"class="table table-striped table-hover">
 		<thead>
 			<tr>
@@ -59,7 +70,7 @@
 				{{ t.title }}
 			</td>
 			<td>
-				{{ t.ytlink }}
+				<a target="_blank" href="{{ t.ytlink }}">{{ t.ytlink }}</a>
 			</td>
 		</tr>
 	</table>
@@ -70,43 +81,106 @@
 
 <script>
 
-	var app = angular.module('myApp',[]);
-	app.config(['$httpProvider', function($httpProvider){
+var app = angular.module('myApp',["ngRoute"]);
+	app.config(['$httpProvider', '$routeProvider', function($httpProvider,$routeProvider){
 		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
 		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-	}])
-	app.controller('myCtrl', function($scope,$http){
-		document.getElementById("artist_input").focus();
-		$scope.entryType = "track";
-		$scope.tracks = [];
-		$scope.track = {};
+		$routeProvider
+		    .when("/", {
+		        controller : "callbackCtrl"
+		    
+		    })
+		    .otherwise({controller: "callbackCtrl"})
+	}]);
 
-		$scope.addTrack = function(){
-			if($scope.track.artist === undefined && $scope.track.title == undefined && $scope.track.ytlink == undefined)
+	app.controller('callbackCtrl', function($scope,$rootScope) {
+    $scope.msg = "I love London";
+    alert($rootScope.test);
+});
+
+	app.controller('myCtrl', function($scope,$http,$rootScope,$location){
+		document.getElementById("artist_input").focus();
+		$scope.tracks = [];
+		$scope.entry = {};
+		$scope.entry.entryType = "track";
+		$rootScope.test = "testVar";
+		$rootScope.$on('message', function(a, b) {
+			alert('here');
+			alert(a);
+			alert(b);
+		  });
+		var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
+		var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/index.html"
+		var spotifyScope = "playlist-read-private user-library-read"
+		//$http.jsonp("https://accounts.spotify.com/authorize?"+"client_id="+SPOTIPY_CLIENT_ID+"&redirect_uri="+SPOTIPY_REDIRECT_URI+"&scope="+spotifyScope+"&response_type=token&state=123&callback=JSON_CALLBACK").success(function(data){console.log(data);});
+		$scope.spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?"+"client_id="+SPOTIPY_CLIENT_ID+"&redirect_uri="+SPOTIPY_REDIRECT_URI+"&scope="+spotifyScope+"&response_type=token&state=123";
+
+
+		var width = 450,
+            height = 730,
+            left = (screen.width / 2) - (width / 2),
+            top = (screen.height / 2) - (height / 2);
+
+
+
+		$scope.processEntry = function(entry){
+			if(entry.entryType == "album")
+			{
+				//var entry = {'artist':$scope.track.artist, 'title':$scope.track.title}
+				$http({
+					url: "getAlbumTracks",
+					method: 'POST',
+					data: entry//{'artist':$scope.track.artist, 'title':$scope.track.title}
+				}).then(function success(response) {
+						for(albumTrack of response.data.tracks){
+							albumTrack.entryType = "track"
+							$scope.addTrack(albumTrack);
+						}
+				    }, function error(response) {
+				      alert("Could not find that album :(");
+				  	});
+			}
+			else
+			{
+				$scope.addTrack(entry);
+			}
+		}
+		$scope.addTrack = function(entry){
+			var track = {'artist':entry.artist, 'title':entry.title, 'ytlink':entry.ytlink, 'entryType':entry.entryType};
+			if(track.artist === undefined && track.title == undefined && track.ytlink == undefined)
 			{
 				document.getElementById("artist_input").focus();
 				return;
 			}
-			if($scope.entryType == "album")
+			var duplicates = $scope.tracks.find(function(t,i){
+			if (t.artist == track.artist && t.title == track.title)
+				{
+					return t;
+				}
+			});
+			if(duplicates != undefined)
+			{
+				//do something to duplicate row
+				alert('you already said that');
+				return
+			}
+			$scope.tracks.unshift(track);
+			if(track.ytlink == undefined) //link not provided
 			{
 				$http({
-					url: "getAlbumTracks",
+					url: "getYtlink",
 					method: 'POST',
-					data: $scope.track
-				}).then(function mySuccess(response) {
-						for(albumTrack of response.data.tracks){
-							$scope.tracks.unshift({artist:$scope.track.artist, title:albumTrack});
-						}
-				    }, function myError(response) {
-				      alert("Could not find that album :(");
-				  	});
+					data: track//{'artist':$scope.track.artist, 'title':$scope.track.title}
+				}).then(function success(response) {
+					//$scope.tracks[0].ytlink = response.data.link;
+					track.ytlink = response.data.link;
+				}, function error(response){
+					alert("Could not find a youtube link for that song, please provide one manually :(");
+				});
 			}
-			else{
-				$scope.tracks.unshift({artist:$scope.track.artist, title:$scope.track.title, ytlink:$scope.track.ytlink});
-			}
-			$scope.track.artist = undefined;
-			$scope.track.title = undefined;
-			$scope.track.ytlink = undefined;
+			$scope.entry.artist = undefined;
+			$scope.entry.title = undefined;
+			$scope.entry.ytlink = undefined;
 			document.getElementById("artist_input").focus();
 		}
 
@@ -117,12 +191,13 @@
 		$scope.deleteRow = function(rowID){
 			$scope.tracks.splice(rowID,1);
 		}
+
 		$scope.downloadTracks = function(){
 			$http({
 					url: "downloadTracks",
 					method: 'POST',
 					data: $scope.tracks,
-				}).then(function mySuccess(response) {
+				}).then(function success(response) {
 						if(response.data.failedTracks.length > 0)
 						{
 							//do stuff to track table here
@@ -137,7 +212,7 @@
 								a.href = URL.createObjectURL(blob);
 								a.download = $scope.zipPath;
 								a.click();
-							}, function zipNotReady(response){
+							}, function error(response){
 								alert('no response!?');
 							});
 							
@@ -146,13 +221,71 @@
 				    });
 		}
 
-		$scope.onKeyPress = function($event) {
+		$scope.loginSpotify = function(){
+			var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
+			var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
+			var spotifyScope = "playlist-read-private user-library-read"
+			var spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?"+"client_id="+SPOTIPY_CLIENT_ID+"&redirect_uri="+SPOTIPY_REDIRECT_URI+"&scope="+spotifyScope+"&response_type=token&state=123";
+			//$http.jsonp(spotifyAuthEndpoint+"&callback=JSON_CALLBACK").success(function(data){
+			window.location.href = spotifyAuthEndpoint;
+			//var w = window.open(spotifyAuthEndpoint,
+            //               'Spotify',
+            //               'menubar=no,resizable=no,scrollbars=no,status=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left
+            //              );
+			//w.addEventListener('click',function(e){
+			//				$scope.eventLog += 'clicked';
+            //              	console.log('clicked');
+            //              });
+			//w.addEventListener('onunload',function(e){
+			//				$scope.eventLog += 'onunload';
+            //              	console.log('onunload');
+            //              });
+			//w.addEventListener('onbeforeunload	',function(e){
+			//				$scope.eventLog += 'onbeforeunload';
+            //              	console.log('onbeforeunload');
+            //              });
+			//w.addEventListener('hashchange',function(e){
+			//				$scope.eventLog += 'hashchange';
+            //              	console.log('hashchange');
+            //              });
+			//w.addEventListener('click',function(e){alert('clicked');});
+			
+			//w.addEventListener('message', function(e) {
+
+//       $rootScope.$broadcast('message', e.data);
+//   });
+			//alert(w.location.hash);
+
+			//$http({
+			//		url: "https://accounts.spotify.com/authorize",
+			//		method: 'GET',
+			//		data: {'client_id':SPOTIPY_CLIENT_ID, 'response_type':"token", 'redirect_uri':SPOTIPY_REDIRECT_URI,'state':"tabaState123",'scope':spotifyScope}
+			//	}).then(function success(response) {
+			//		alert(response.data);
+			//	}, function error(response){
+			//		alert('error!');
+			//	});
+
+
+			//$http.get('getSpotifyPlaylists').then(function success(response){
+			//	alert(response.data.playlists);
+			//	alert('got some playlists');
+			//}, function error(response){
+			//	alert('did not get playlists');
+			//})
+		}
+
+		$scope.onKeyPress = function($event,entry) {
 		      if ($event.keyCode == 13) {
+		      		console.log("test");
 		          // Here is where I must fire the click event of the button
-		          $scope.addTrack();
+		          $scope.processEntry(entry);
 		      }
 		  }; 
+
+
 	})
+	
 
 	
 </script>	

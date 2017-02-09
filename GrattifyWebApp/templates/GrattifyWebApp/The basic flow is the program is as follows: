@@ -1,0 +1,28 @@
+The basic flow is the program is as follows:
+User enters a song they want
+Gratify finds the best youtube video corresponding to it
+Gratify downloads the song audio onto the Gratify server
+Gratify converts the audio into mp3 format
+Audio is downloaded from Gratify server, to the user’s computer
+Audio is deleted from Gratify server
+
+What does youtube policy say about a user downloading videos?
+Do different youtube videos have different copyrights/permission levels/privacy status? (I think i saw somewhere that some youtube videos are public domain while others that are private are ok to be viewed but not downloaded, thats what im talking about here)	
+Does the fact that only the audio is being downloaded from the video make a difference? The video content itself is not downloaded.
+Does the fact that my website simply provides a means by which to download the videos make a difference? I myself am not downloading any videos. I certainly hope my users will only use my website for legal, morally righteous purposes… Kinda like a bong shop (before legalization); weed is illegal, smoking weed is illegal, smoking weed in a bong is illegal, but for whatever reason they didn’t legally link bongs to weed, and so bongs were legally sold under the premise that they wouldnt be used to smoke weed. Sold as “tobacco pipes”. In our scenario, “tobacco” could be that class of youtube videos that fall in the public domain and are ok for download? (contingent on the answer to question 2) Also keep in mind that the audio temporarily does reside on my server, while it gets converted into mp3.
+Assuming the above described system is against youtube policy, what kind of legal repercussions could i be looking at for violating the policy? On a scale of “slap on the wrist” to “fuck-you-in-the-butt prison”
+The legally questionable aspects of Gratify are nothing new. There are plenty of ‘youtube downloaders’ out there. Some even claim they’re legal, ex: http://convert2mp3.net/en/. Have any of those ever been sued/prosecuted by youtube or anyone else? What repercussions did they face?
+In the same vein as question 6: The piece of code in my program which physically takes a youtube url as input and downloads the audio was not written by me. Its a fairly popular program called youtube-dl. 
+Do they say anything about the legality of their program or its use? 
+Does youtube say anything about youtube-dl? 
+Does the fact that i didnt write that piece make me more or less liable?
+I could make the website about twice as fast as it currently is by implementing a caching system. For example, my server would store the top 100,000 songs that are requested, that way when a new user comes by and asks for one of them, the mp3 is already converted and ready to go. 
+Does caching audio content in this manner affect the legality? Again im not the one that chose to put private content on there… its like if i left my house unlocked and said it was fine for others to use it, then somebody hides cocaine under my bed… am i really at fault??
+In light of the answers above, does a name that implies criminal activity such as Grand Theft Audio make any difference?
+What should this be called:
+Gratify
+Grand Theft Audio
+Audios Mio 
+Audios Amigo
+Grattify
+

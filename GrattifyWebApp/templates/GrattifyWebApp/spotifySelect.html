@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<!--{% load static %}-->
+<head>
+	<title>Which Playlists</title>
+	<center><h1>Spotify Select</h1><center>
+	<meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<!-- Latest AngularJS -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<!-- Angular Routes -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+
+	<script src="{% static "script.js" %}"></script>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.min.js"></script>
+
+</head>
+<body>
+	{%verbatim%}
+<div ng-app="myApp" ng-controller="spotifySelectionCtrl" ng-init="init()">
+	<form id="multiselectForm" method="post" class="form-horizontal" >
+	    <div ng-repeat="p in playlists" class="form-group">
+	        <label class="col-xs-3 control-label">{{ p.name }}</label>
+	        <div class="col-xs-5">
+	            <select  elem-ready="activateMultiselect()" class="multiselect form-control" id="{{ p.id }}" multiple="multiple">
+	                <option ng-repeat="t in p.tracks" value="{{t.artist}}-{{t.title}}">{{t.artist}}-{{t.title}}</option>
+	            </select>
+	        </div>
+	    </div>
+	</form>
+
+	<div class="funkyradio">
+        <div ng-repeat="p in playlists" class="funkyradio-default">
+            <input type="checkbox" id="{{ p.id }}" class="plCheckbox" checked/>
+            <label for="{{ p.id }}">{{ p.name }}</label>
+        </div>
+    </div>
+	<button ng-click="addPlaylistsToQueue()">Next</button>
+</div>
+{%endverbatim%}
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	{% csrf_token %}
+	
+	</center>
+	</div>
+</body>
+<script>
+    var app = angular.module('myApp', ["ngRoute"]);
+    app.config(['$httpProvider', function($httpProvider) {
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    }]);
+
+    app.directive( 'elemReady', function( $parse ) {
+   return {
+       restrict: 'A',
+       link: function( $scope, elem, attrs ) {    
+          elem.ready(function(){
+            $scope.$apply(function(){
+                var func = $parse(attrs.elemReady);
+                func($scope);
+            })
+          })
+       }
+    }
+});
+
+    app.controller('spotifySelectionCtrl', function($scope, $http, $timeout) {
+        $scope.parseHash = function(urlHash) {
+            var hashContents = {};
+            var fieldStart, valueStart, currField;
+            for (i = 0; i < urlHash.length; i++) {
+                if (i == urlHash.length - 1) {
+                    //get last field value
+                    hashContents[currField] = urlHash.substr(valueStart);
+                }
+                switch (urlHash[i]) {
+                    case ('#'):
+                        //first field
+                        fieldStart = i + 1;
+                        break;
+                    case ('&'):
+                        hashContents[currField] = urlHash.substr(valueStart, i - valueStart);
+                        fieldStart = i + 1;
+                        break;
+                    case ('='):
+                        currField = urlHash.substr(fieldStart, i - fieldStart);
+                        valueStart = i + 1;
+                        break;
+                }
+            }
+            return hashContents;
+        };
+
+        $scope.init = function() {
+            //grant = {'access_token','state','token_type','expires_in'}
+            $scope.spotifyGrant = $scope.parseHash(String(window.location.hash));
+            $scope.playlists = [];
+            var userID
+            var oauthHeader = {
+                'Authorization': 'Bearer ' + $scope.spotifyGrant['access_token']
+            };
+            //oh god time to get the playlist data
+            $http({
+                method: 'GET',
+                url: 'https://api.spotify.com/v1/me',
+                headers: oauthHeader
+            }).then(function success(response) {
+                    userID = response.data['id'];
+                    $http({
+                        method: 'GET',
+                        url: 'https://api.spotify.com/v1/users/' + userID + '/playlists',
+                        headers: oauthHeader
+                    }).then(function success(response) {
+                            response.data['items'].forEach(function(playlist) {
+                                $http({
+                                    method: 'GET',
+                                    url: playlist['tracks']['href'],
+                                    headers: oauthHeader,
+                                }).then(function success(response) {
+                                        var tracks = [];
+                                        response.data['items'].forEach(function(track) {
+                                            tracks.push({
+                                                'title': track['track']['name'],
+                                                'artist': track['track']['artists'][0]['name']
+                                            });
+                                        });
+                                        $scope.playlists.push({
+                                            'name': playlist['name'],
+                                            'id': playlist['id'],
+                                            'tracks': tracks
+                                        });
+                                    },
+                                    function error(response) {
+                                        alert('Error getting tracks for playlist ' + playlist['name']);
+                                    });
+                            });
+                        },
+                        function error(response) {
+                            alert('Error getting user playlists!');
+                        });
+                },
+                function error(response) {
+                    alert('Error getting user profile!');
+                });
+			
+
+        };
+
+        $scope.activateMultiselect = function(){
+        	$('.multiselect').multiselect();
+        	$('.multiselect').multiselect({
+        		includeSelectAllOption: true
+        		//selectedClass: class to apply to selected options
+        	});
+        };
+
+        $scope.addPlaylistsToQueue = function(){
+        	$scope.playlists.forEach(function(playlist){
+        		if ($('#'+playlist['id']).
+        	})
+        }
+
+    });
+
+	
+</script>
