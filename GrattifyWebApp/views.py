@@ -33,10 +33,15 @@ def downloadTracks(request):
 	return HttpResponse(json.dumps(response_data),content_type="application/json")
 
 def serveZip(request):
+	zipName = request.GET['name'] + '.zip'
+	#zipName = request.session['zipDir']
+	#print 'serving ' + zipName
 	if os.path.exists(request.session['zipDir']):
-		servableZip = open(request.session['zipDir'],'r')
-		response = HttpResponse(servableZip, content_type='application/zip')
-		response['Content-Disposition'] = 'attachment; filename="%s"' % request.session['zipDir']
+		os.rename(request.session['zipDir'],zipName)
+		servableZip = open(zipName,'rb')
+		#servableZip = zipName;
+		response = HttpResponse(servableZip, content_type='application/zip') #try octet-stream instead of zip if problems
+		response['Content-Disposition'] = 'attachment; filename="%s"' % zipName
 		return response
 	else:
 		return Http404
@@ -48,75 +53,8 @@ def getYtlink(request):
 	return HttpResponse(json.dumps(response_data),content_type="application/json")
 
 def callback(request):
-	print "in callback, dumping request shit\n"
-	SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
-	SPOTIPY_CLIENT_SECRET = "5b54de875ad349f3bb1bbecd5832f276"
-	SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
-	
 	return render(request, 'GrattifyWebApp/spotifySelect.html',{})
 
-
-
-
-	#scope = "playlist-read-private user-library-read"
-	#sp_oauth = oauth2.SpotifyOAuth( SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET,SPOTIPY_REDIRECT_URI,scope=scope)
-	#code = sp_oath.parse_response_code(request.url)
-	#token_info = sp_oauth.get_access_token(code)
-	#access_token = token_info['access_token']
-	
-#	playlists = []
-#	if token:
-#	    sp = spotipy.Spotify(auth=token)
-#	    user = sp.current_user()['id']
-#	    spPlaylists = sp.user_playlists(user)
-#	    for playlist in spPlaylists['items']:
-#	    	if (len(reqPlaylists) == 0 or playlist['name'].lower() in [pl.lower() for pl in reqPlaylists]):
-#				results = sp.user_playlist(user, playlist['id'],
-#				    fields="tracks,next")
-#				songs = map((lambda item:item['track']['name']),results['tracks']['items'])
-#				artists = map((lambda item:item['track']['artists'][0]['name']),results['tracks']['items'])
-#				tracks = zip(artists,songs)
-#				
-#				playlists.append({'name':playlist['name'],'tracks':tracks})
-#		return HttpResponse(json.dumps(playlists),content_type="application/json")
-#	else:
-#	    print "Can't get token for", username
-#	return Http404
-
-#def getSpotifyPlaylists(request):
-#	SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
-#	SPOTIPY_CLIENT_SECRET = "5b54de875ad349f3bb1bbecd5832f276"
-#	SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
-#	scope = "playlist-read-private user-library-read"
-#	link = "https://accounts.spotify.com/authorize"
-
-	#code = sp_oauth.parse_response_code(url)
-	#if code:
-	#	print "Found Spotify auth code in Request URL! Trying to get valid access token..."
-	#	token_info = sp_oauth.get_access_token(code)
-	#	access_token = token_info['access_token']
-#
-	#if access_token:
-	#	print "Access token available! Trying to get user information..."
-	#	sp = spotipy.Spotify(access_token)
-	#	results = sp.current_user()
-	#	return results
-#
-	#else:
-	#	return htmlForLoginButton()
-
-#def htmlForLoginButton():
-#    auth_url = getSPOauthURI()
-#    htmlLoginButton = "<a href='" + auth_url + "'>Login to Spotify</a>"
-#    return htmlLoginButton
-#
-#def getSPOauthURI():
-#    auth_url = sp_oauth.get_authorize_url()
-#    return auth_url
-#	sp_oauth = oauth2.SpotifyOAuth( SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET,SPOTIPY_REDIRECT_URI,scope=SCOPE)
-#
-#	playlists = grattify.getSpotifyPlaylists("dummy",[])
-#	return HttpResponse(json.dumps(playlists),content_type="application/json")
 
 def loadTracksToSession(request):
 	request.session['tracks'] = request.POST['tracks']

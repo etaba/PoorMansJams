@@ -18,31 +18,70 @@
 
 	<script src="{% static "script.js" %}"></script>
 
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.min.js"></script>
-
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-filter/0.5.14/angular-filter.js"></script>
 </head>
 <body>
 	{%verbatim%}
 <div ng-app="myApp" ng-controller="spotifySelectionCtrl" ng-init="init()">
-	<form id="multiselectForm" method="post" class="form-horizontal" >
-	    <div ng-repeat="p in playlists" class="form-group">
-	        <label class="col-xs-3 control-label">{{ p.name }}</label>
-	        <div class="col-xs-5">
-	            <select  elem-ready="activateMultiselect()" class="multiselect form-control" id="{{ p.id }}" multiple="multiple">
-	                <option ng-repeat="t in p.tracks" value="{{t.artist}}-{{t.title}}">{{t.artist}}-{{t.title}}</option>
-	            </select>
+	<div ng-if="selectedPlaylists.length == 0">
+		<div class="funkyradio">
+	        <div ng-repeat="p in playlists" class="funkyradio-default">
+	            <input type="checkbox" id="{{ p.id }}" class="plCheckbox" checked/>
+	            <label for="{{ p.id }}">{{ p.name }}</label>
 	        </div>
-	    </div>
-	</form>
+    	</div>
+		<button ng-click="addPlaylistsToQueue()">Done</button>
+	</div>
+	<div ng-if="selectedPlaylists.length > 0">
+		<br>
+			<button   ng-click="downloadPlaylists(selectedPlaylists)" class="btn btn-primary">
+				<span style="font-size:1.5em;vertical-align:middle" title="Download All" class="glyphicon glyphicon-download-alt"></span>
+			</button>
+		<br>
 
-	<div class="funkyradio">
-        <div ng-repeat="p in playlists" class="funkyradio-default">
-            <input type="checkbox" id="{{ p.id }}" class="plCheckbox" checked/>
-            <label for="{{ p.id }}">{{ p.name }}</label>
-        </div>
-    </div>
-	<button ng-click="addPlaylistsToQueue()">Next</button>
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th style="width:4%"></th>
+					<th style="width:32%">Artist</th>
+					<th style="width:32%">Track</th>
+					<th style="width:32%">YouTube</th>
+				</tr>
+			</thead>
+			<tbody ng-repeat="p in selectedPlaylists">
+				<tr>
+					<th>
+						<p data-placement="top" data-toggle="tooltip" title="Delete">
+							<button ng-click="deletePlaylist(p.id)" class="btn btn-danger btn-xs" data-title="Delete All In Playlist">
+								<span style="font-size:2em;" class="glyphicon glyphicon-trash"></span>
+							</button>
+						</p>
+					</th>
+					<th >{{ p.name }}</th>
+				</tr>
+				<tr ng-repeat="t in p.tracks">
+					<td>
+						<p data-placement="top" data-toggle="tooltip" title="Delete">
+							<button ng-click="deletePlaylistRow(p.id,$index)" class="btn btn-danger btn-xs" data-title="Delete">
+								<span class="glyphicon glyphicon-trash"></span>
+							</button>
+						</p>
+					</td>
+					<td>
+						{{ t.artist }}
+					</td>
+					<td>
+						{{ t.title }}
+					</td>
+					<td>
+						<a target="_blank" href="{{ t.ytlink }}">{{ t.ytlink }}</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<button ng-click="downloadTracks(selectedPlaylists[0],'ClassicRockPlaylist')">ClassicRock</button>
+		<button ng-click="downloadTracks(selectedPlaylists[1],'RapPlaylist')">Rap</button>
+	</div>
 </div>
 {%endverbatim%}
 	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
@@ -52,7 +91,7 @@
 	</div>
 </body>
 <script>
-    var app = angular.module('myApp', ["ngRoute"]);
+    var app = angular.module('myApp', ["ngRoute", 'angular.filter']);
     app.config(['$httpProvider', function($httpProvider) {
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -72,7 +111,7 @@
     }
 });
 
-    app.controller('spotifySelectionCtrl', function($scope, $http, $timeout) {
+    app.controller('spotifySelectionCtrl', function($scope, $http, $timeout, $q) {
         $scope.parseHash = function(urlHash) {
             var hashContents = {};
             var fieldStart, valueStart, currField;
@@ -103,6 +142,7 @@
             //grant = {'access_token','state','token_type','expires_in'}
             $scope.spotifyGrant = $scope.parseHash(String(window.location.hash));
             $scope.playlists = [];
+        	$scope.selectedPlaylists = []
             var userID
             var oauthHeader = {
                 'Authorization': 'Bearer ' + $scope.spotifyGrant['access_token']
@@ -154,20 +194,119 @@
 
         };
 
-        $scope.activateMultiselect = function(){
-        	$('.multiselect').multiselect();
-        	$('.multiselect').multiselect({
-        		includeSelectAllOption: true
-        		//selectedClass: class to apply to selected options
-        	});
-        };
-
         $scope.addPlaylistsToQueue = function(){
         	$scope.playlists.forEach(function(playlist){
-        		if ($('#'+playlist['id']).
+        		if ($('#'+playlist['id'])[0].checked){
+        			$scope.selectedPlaylists.push(playlist);
+        			playlist.tracks.forEach(function(track){
+        				if(track.ytlink == undefined) //link not provided
+						{
+							$http({
+								url: "../getYtlink",
+								method: 'POST',
+								data: track
+							}).then(function success(response) {
+								//$scope.tracks[0].ytlink = response.data.link;
+								track.ytlink = response.data.link;
+							}, function error(response){
+								alert("Could not find a youtube link for that song, please provide one manually :(");
+							});
+						}
+        			})
+        		}
         	})
+        	console.log($scope.selectedPlaylists);
         }
 
+        $scope.downloadPlaylists = function(playlists){
+        	$scope.downloadTracks(playlists[0].tracks,playlists[0].name).then(function success(){$scope.downloadTracks(playlists[1].tracks,playlists[1].name)});
+        	//		i++
+        	//	});
+        	//var i = 0;
+        	//while (i < playlists.length - 1){
+        	//	var playlist = playlists[i];
+        	//	$scope.downloadTracks(playlist.tracks,playlist.name).then(function success(){
+        	//		i++
+        	//	});
+        	//	console.log('sent download request for' + playlist.name)
+        	//}
+        	//playlists.forEach(function(playlist){
+        	//	$scope.downloadTracks(playlist.tracks,playlist.name).then(
+        	//		);
+        	//})
+        }
+        $scope.downloadTracks = function(tracks,folderName){
+        	//var deferred = $q.defer();
+			return $http({
+					url: "../downloadTracks",
+					method: 'POST',
+					data: tracks,
+				}).then(function success(response) {
+						if(response.data.failedTracks.length > 0)
+						{
+							//do stuff to track table here
+							alert("Some tracks failed to download :(");
+						}
+						else
+						{
+							$http({
+								url: "../serveZip",
+								method: 'GET',
+								params: {'name':folderName},
+								responseType: 'arraybuffer'
+							}).then(function success(response){
+									var a = document.createElement('a');
+									var blob = new Blob([response.data], {'type':"application/zip"}); //try octet-stream instead of zip if this breaks
+									a.href = URL.createObjectURL(blob);
+									a.download = folderName+'.zip';
+									a.click();
+									//deferred.resolve();
+									//return deferred.promise;
+							}, function error(response){
+								alert('Failed to download zip from server');
+								//deferred.reject(response);
+								//return deferred.promise;
+							});
+						}
+				    },function error(response) {
+				    	alert("Error downloading " + folderName + " tracks");
+				    	//deferred.reject(response);
+				    	//return deferred.promise;
+				    });
+		}
+
+		$scope.deletePlaylist = function(playlistID){
+			$scope.selectedPlaylists = $scope.selectedPlaylists.filter(function(playlist){
+				return playlist['id'] != playlistID;
+				console.log(playlist['id'])
+				console.log(playlist['id'] != playlistID)
+			});
+		}
+
+		$scope.deletePlaylistRow = function(playlistID,rowIndex){
+			$scope.selectedPlaylists.forEach(function(playlist){
+				if (playlist.id == playlistID){
+					playlist.tracks.splice(rowIndex,1);
+				}
+			});
+		}
+
+		$scope.tryZip = function(){
+			$http({
+				url: "../serveZip",
+				method: 'GET',
+				params: {'name':'YourMusic_76viehmlms1bg4r74d32xbs76v3d4k46'},
+				responseType:"arraybuffer"
+			}).then(function zipReady(response){
+					var a = document.createElement('a');
+					var blob = new Blob(/*[new Uint8Array(response.data)]*/[response.data], {'type':"application/zip"}); //try octet-stream instead of zip if this breaks
+					a.href = URL.createObjectURL(blob);
+					a.download = 'YourMusic_76viehmlms1bg4r74d32xbs76v3d4k46.zip';
+					a.click();
+			}, function error(response){
+				alert('no response!?');
+			});
+		}
     });
 
 	
