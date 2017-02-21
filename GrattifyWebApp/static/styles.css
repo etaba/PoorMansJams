@@ -1,0 +1,54 @@
+body{
+  background-color: #000000;
+}
+tr{
+  border: solid black;
+}
+input{
+  border: solid #cf66ff 2px;
+  background-color: #ffe680;
+}
+.button{
+  background-color: #ffe680;
+  color: #cf66ff;
+}
+.list-container{
+}
+.list-el{
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+
+
+.gratify-button {
+  -webkit-border-radius: 6;
+  -moz-border-radius: 6;
+  border-radius: 6px;
+  font-family: Arial;
+  color: #cf66ff;
+  font-size: 17px;
+  background: #ffe680;
+  padding: 6px 20px 10px 20px;
+  border: solid #cf66ff 2px;
+  text-decoration: none;
+}
+
+.gratify-button:hover {
+  background: #cf66ff;
+  border: solid #ffe680 2px;
+  color: #ffe680;
+  text-decoration: none;
+}

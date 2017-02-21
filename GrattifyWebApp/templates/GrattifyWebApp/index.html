@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<!--{% load static %}-->
+{% load static %}
 <head>
 	<title>Grand Theft Audio</title>
-	<center><h1>Grand Theft Audio</h1><center>
+	<center><h1><font color="#cf66ff">Grand Theft Audio</font></h1><center>
 	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, initial-scale=1">
   	<!-- Latest AngularJS -->
@@ -16,226 +16,125 @@
 	<!-- Angular Routes -->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
 
+	<link rel="stylesheet" href="{% static "styles.css" %}"></link>
+
 	<script src="{% static "script.js" %}"></script>
 </head>
-<body>
-	<div ng-app="myApp" ng-controller="myCtrl" class="container-fluid">
+<body ng-app="myApp">
+	<div  ng-controller="indexCtrl" class="container-fluid">
 	<center>
 
 	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 	{% csrf_token %}
-	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="track"/>Track
-	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="album"/>Album
+	<br>
+	<br>
+	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="track"/><font color="#ffe680">Track</font>
+	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="album"/><font color="#ffe680">Album</font>
 	<input type="text"  ng-model="entry.artist" placeholder="Artist" ng-keypress="onKeyPress($event,entry)" id="artist_input"/>
 	<input type="text"  ng-model="entry.title"  placeholder="Track or Album Title" ng-keypress="onKeyPress($event,entry)"/>
 	<input type="text"  ng-model="entry.ytlink" placeholder="Youtube Link (optional)" ng-keypress="onKeyPress($event,entry)"/>
-	<button ng-click="processEntry(entry)" id="add_button">Add</button>
+	<button ng-click="processEntry(entry)" class="btn" style="background-color:#cf66ff">
+		<span class="glyphicon glyphicon-plus" style="color:#ffe680"></span>
+	</button>
 	<br>
-	<button ng-click="loginSpotify()">Get Spotify Playlists</button>
+	<div ng-show="selectedPlaylists.length == 0">
+		<br>
+		<font color="#cf66ff">OR</font>
+		<br>
+	</div>
 	<br>
-		<button ng-click="downloadTracks(tracks,'YourMusic')" ng-if="tracks.length > 0" class="btn btn-primary">
-			<span style="font-size:1.5em;vertical-align:middle" title="Download All" class="glyphicon glyphicon-download-alt"></span>
-		</button>
-	<br>
-
+	<button ng-click="loginSpotify()" class="gratify-button">Import Spotify</button>
+	<button   ng-click="downloadTracksRecursive(selectedPlaylists,0,0)" 
+			  ng-show="selectedPlaylists.length > 0"
+			  class="gratify-button">Download All</button>
 	{% verbatim %}
-	<table ng-if="tracks.length > 0"class="table table-striped table-hover">
-		<thead>
-			<tr>
-				<th style="width:4%"></th>
-				<th style="width:32%">Artist</th>
-				<th style="width:32%">Track</th>
-				<th style="width:32%">YouTube</th>
-			</tr>
-		</thead>
-		<tr ng-repeat="t in tracks">
-			<td>
-				<p data-placement="top" data-toggle="tooltip" title="Delete">
-					<button ng-click="deleteRow($index)" class="btn btn-danger btn-xs" data-title="Delete">
-						<span class="glyphicon glyphicon-trash"></span>
-					</button>
-				</p>
-			</td>
-			<td>
-				{{ t.artist }}
-			</td>
-			<td>
-				{{ t.title }}
-			</td>
-			<td>
-				<a target="_blank" href="{{ t.ytlink }}">{{ t.ytlink }}</a>
-			</td>
-		</tr>
-	</table>
+		<br>
+		<div class="container" ng-show="selectedPlaylists.length > 0" >
+		<table class="table table-striped">
+			<thead >
+				<tr style="background-color:#cf66ff">
+					<th style="width:4%"></th>
+					<th style="width:32%"><h4>Artist</h4></th>
+					<th style="width:32%"><h4>Track</h4></th>
+					<th style="width:32%"><h4>YouTube</h4></th>
+				</tr>
+			</thead>
+			<tbody ng-repeat="p in selectedPlaylists">
+				<tr ng-if="selectedPlaylists.length > 1 && p.tracks.length > 0" 
+					ng-mouseover="modifyPlaylist=true;" 
+					ng-mouseleave="modifyPlaylist=false;" 
+					style="background-color:#efccff">
+					<td >
+						<button ng-show="modifyPlaylist" ng-click="deletePlaylist(p.id)" class="btn btn-danger btn-xs" title="Remove Playlist">
+							<span class="glyphicon glyphicon-remove"></span>
+						</button>
+					</td>
+					<td align="center" colspan="3"><h5>{{ p.name }}</h5></td>
+				</tr>
+				<tr ng-repeat="t in p.tracks" 
+					ng-mouseover="modifyRow=true;" 
+					ng-mouseleave="modifyRow=false;" 
+					ng-style="getRowStyle(t.status)">
+					<td>
+						<button ng-show="modifyRow" ng-click="deletePlaylistRow(p.id,$index)" class="btn btn-danger btn-xs" title="Remove">
+							<span class="glyphicon glyphicon-remove"></span>
+						</button>
+					</td>
+					<td ng-click="editPlaylistRow(p.id,$index)">
+						<span ng-show="!modifyRow">{{ t.artist }}</span>
+						<input type="text" 
+							   ng-model="t.artist" 
+							   ng-show="modifyRow" 
+							   class="yellow-input"
+							   onclick="this.select()"></input>
+					</td>
+					<td ng-click="editPlaylistRow(p.id,$index)">
+						<span ng-show="!modifyRow">{{ t.title }}</span>
+						<input type="text" 
+							   ng-model="t.title" 
+							   ng-show="modifyRow" 
+							   class="yellow-input"
+							   onclick="this.select()"></input>
+					</td>
+					<td ng-click="editPlaylistRow(p.id,$index)">
+						<a ng-show="!modifyRow" target="_blank" href="{{ t.ytlink }}">{{ t.ytlink }}</a>
+						<input type="text" 
+							   ng-model="t.ytlink" 
+							   ng-show="modifyRow || !t.ytlink" 
+							   placeholder="Link Needed" 
+							   class="yellow-input"
+							   onclick="this.select()"></input>
+						<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"
+							  style="color:#efccff"
+							  ng-show="t.ytlink=='Smart Search...'"></span>
+					</td>
+					<td ng-if="t.status=='ERROR'"
+						style="background-color:#000000"
+						ng-mouseleave="showError = false"
+						ng-mouseover="showError = true">
+							<span ng-show="!showError"
+								  class="glyphicon glyphicon-exclamation-sign" 
+								  title="{{t.err}}"
+								  style="color:red">
+							</span>
+							<span ng-show="showError"><font color="red">{{ t.err }}</font></span>
+					</td>
+					<td ng-if="t.status=='DOWNLOADING'"
+						style="background-color:#000000">
+						<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"
+							  style="color:#efccff"></span>
+					</td>
+					<td ng-if="t.status=='COMPLETE'"
+						style="background-color:#000000">
+						<span class="glyphicon glyphicon-ok"
+							  style="color:green">
+						</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 	{% endverbatim %}
 	</center>
 	</div>
 </body>
-
-<script>
-
-var app = angular.module('myApp',["ngRoute"]);
-	app.config(['$httpProvider', '$routeProvider', function($httpProvider,$routeProvider){
-		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
-		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-		$routeProvider
-		    .when("/", {
-		        controller : "callbackCtrl"
-		    
-		    })
-		    .otherwise({controller: "callbackCtrl"})
-	}]);
-
-	app.controller('callbackCtrl', function($scope,$rootScope) {
-    $scope.msg = "I love London";
-    alert($rootScope.test);
-});
-
-	app.controller('myCtrl', function($scope,$http,$rootScope,$location){
-		document.getElementById("artist_input").focus();
-		$scope.tracks = [];
-		$scope.entry = {};
-		$scope.entry.entryType = "track";
-		$rootScope.test = "testVar";
-		$rootScope.$on('message', function(a, b) {
-			alert('here');
-			alert(a);
-			alert(b);
-		  });
-		var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
-		var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/index.html"
-		var spotifyScope = "playlist-read-private user-library-read"
-		//$http.jsonp("https://accounts.spotify.com/authorize?"+"client_id="+SPOTIPY_CLIENT_ID+"&redirect_uri="+SPOTIPY_REDIRECT_URI+"&scope="+spotifyScope+"&response_type=token&state=123&callback=JSON_CALLBACK").success(function(data){console.log(data);});
-		$scope.spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?"+"client_id="+SPOTIPY_CLIENT_ID+"&redirect_uri="+SPOTIPY_REDIRECT_URI+"&scope="+spotifyScope+"&response_type=token&state=123";
-
-
-		var width = 450,
-            height = 730,
-            left = (screen.width / 2) - (width / 2),
-            top = (screen.height / 2) - (height / 2);
-
-
-
-		$scope.processEntry = function(entry){
-			if(entry.entryType == "album")
-			{
-				//var entry = {'artist':$scope.track.artist, 'title':$scope.track.title}
-				$http({
-					url: "getAlbumTracks",
-					method: 'POST',
-					data: entry//{'artist':$scope.track.artist, 'title':$scope.track.title}
-				}).then(function success(response) {
-						for(albumTrack of response.data.tracks){
-							albumTrack.entryType = "track"
-							$scope.addTrack(albumTrack);
-						}
-				    }, function error(response) {
-				      alert("Could not find that album :(");
-				  	});
-			}
-			else
-			{
-				$scope.addTrack(entry);
-			}
-		}
-		$scope.addTrack = function(entry){
-			var track = {'artist':entry.artist, 'title':entry.title, 'ytlink':entry.ytlink, 'entryType':entry.entryType};
-			if(track.artist === undefined && track.title == undefined && track.ytlink == undefined)
-			{
-				document.getElementById("artist_input").focus();
-				return;
-			}
-			var duplicates = $scope.tracks.find(function(t,i){
-			if (t.artist == track.artist && t.title == track.title)
-				{
-					return t;
-				}
-			});
-			if(duplicates != undefined)
-			{
-				//do something to duplicate row
-				alert('you already said that');
-				return
-			}
-			$scope.tracks.unshift(track);
-			if(track.ytlink == undefined) //link not provided
-			{
-				$http({
-					url: "getYtlink",
-					method: 'POST',
-					data: track//{'artist':$scope.track.artist, 'title':$scope.track.title}
-				}).then(function success(response) {
-					track.ytlink = response.data.link;
-				}, function error(response){
-					alert("Could not find a youtube link for that song, please provide one manually :(");
-				});
-			}
-			$scope.entry.artist = undefined;
-			$scope.entry.title = undefined;
-			$scope.entry.ytlink = undefined;
-			document.getElementById("artist_input").focus();
-		}
-
-		$scope.clearTracks = function(){
-			$scope.tracks = [];
-		}
-
-		$scope.deleteRow = function(rowID){
-			$scope.tracks.splice(rowID,1);
-		}
-
-		$scope.downloadTracks = function(tracks,folderName){
-			$http({
-					url: "../downloadTracks",
-					method: 'POST',
-					data: tracks,
-				}).then(function success(response) {
-						if(response.data.failedTracks.length > 0)
-						{
-							//do stuff to track table here
-							alert("Some tracks failed to download :(");
-						}
-						else
-						{
-							//$scope.zipPath = response.data.zipPath;
-							$http({
-								url: "../serveZip",
-								method: 'GET',
-								params: {'name':folderName},
-								responseType: 'arraybuffer'
-							}).then(function zipReady(response){
-									var a = document.createElement('a');
-									var blob = new Blob([response.data], {'type':"application/zip"}); //try octet-stream instead of zip if this breaks
-									a.href = URL.createObjectURL(blob);
-									a.download = folderName+'.zip';
-									a.click();
-							}, function error(response){
-								alert('no response!?');
-							});
-						}
-				    });
-		}
-
-		$scope.loginSpotify = function(){
-			var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
-			var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
-			var spotifyScope = "playlist-read-private user-library-read"
-			var spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?"+"client_id="+SPOTIPY_CLIENT_ID+"&redirect_uri="+SPOTIPY_REDIRECT_URI+"&scope="+spotifyScope+"&response_type=token&state=123";
-			window.location.href = spotifyAuthEndpoint;
-			
-		}
-
-		$scope.onKeyPress = function($event,entry) {
-		      if ($event.keyCode == 13) {
-		      		console.log("test");
-		          // Here is where I must fire the click event of the button
-		          $scope.processEntry(entry);
-		      }
-		  }; 
-
-
-	})
-	
-
-	
-</script>	

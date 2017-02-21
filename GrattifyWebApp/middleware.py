@@ -1,5 +1,5 @@
 #from datetime import datetime, timedelta
-import time,json,urllib
+import time,json,urllib, shutil
 from django.conf import settings
 from django.contrib import auth
 from django.http import QueryDict
@@ -24,6 +24,7 @@ class EndSession(object):
 			if time.time() - request.session['last_touch'] > settings.SESSION_TIMEOUT:
 			#if datetime.now() - request.session['last_touch'] > timedelta(0,settings.SESSION_TIMEOUT,0):
 				del request.session['tracks']
+				shutil.rmtree('tmp/'+request.session.session_key)
 			    #clean up session stuff here
 			    #delete any zip files
 			else:
@@ -34,10 +35,14 @@ class EndSession(object):
 
 class JSONMiddleware(object):
     def process_request(self, request):
-        if 'application/json' in request.META['CONTENT_TYPE']:
+		if 'application/json' in request.META['CONTENT_TYPE']:
+			if request.method == 'GET':
+				request.GET = json.loads(request.body)
+			if request.method == 'POST':
+				request.POST = json.loads(request.body)
+			return None
 			# load the json data
-			data = json.loads(request.body)
-			print request.body
+			##data = json.loads(request.body)
 			# for consistency sake, we want to return
 			# a Django QueryDict and not a plain Dict.
 			# The primary difference is that the QueryDict stores
@@ -47,24 +52,24 @@ class JSONMiddleware(object):
 			# do a q_data.update(data), any list values will be wrapped
 			# in another list. By iterating through the list and updating
 			# for each value, we get the expected result of a single list.
-			q_data = QueryDict('', mutable=True)
-			if isinstance(data, list):
-				q_data.update({'tracks':data})
-			else:
-				for key, value in data.iteritems():
-					if isinstance(value, list):
-						# need to iterate through the list and upate
-						# so that the list does not get wrapped in an
-						# additional list.
-						for x in value:
-						    q_data.update({key: x})
-					else:
-						q_data.update({key: value})
+			##q_data = QueryDict('', mutable=True)
+			##if isinstance(data, list) or True:
+			##	q_data.update({'tracks':data})
+			##else:
+			##	for key, value in data.iteritems():
+			##		if isinstance(value, list):
+			##			# need to iterate through the list and upate
+			##			# so that the list does not get wrapped in an
+			##			# additional list.
+			##			for x in value:
+			##			    q_data.update({key: x})
+			##		else:
+			##			q_data.update({key: value})
+##
+			##if request.method == 'GET':
+			##	request.GET = q_data
+##
+			##if request.method == 'POST':
+			##	request.POST = q_data
 
-			if request.method == 'GET':
-				request.GET = q_data
-
-			if request.method == 'POST':
-				request.POST = q_data
-
-        return None
+		##return None
