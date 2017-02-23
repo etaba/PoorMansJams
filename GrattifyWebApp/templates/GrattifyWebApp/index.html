@@ -103,7 +103,8 @@
 							   ng-show="modifyRow || !t.ytlink" 
 							   placeholder="Link Needed" 
 							   class="yellow-input"
-							   onclick="this.select()"></input>
+							   onclick="this.select()"
+							   ng-change="removeLinkError(t)"></input>
 						<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"
 							  style="color:#efccff"
 							  ng-show="t.ytlink=='Smart Search...'"></span>
@@ -117,7 +118,10 @@
 								  title="{{t.err}}"
 								  style="color:red">
 							</span>
-							<span ng-show="showError"><font color="red">{{ t.err }}</font></span>
+							<button ng-show="t.err=='Download failed.' && showError" 
+									class="btn btn-danger"
+									ng-click="downloadSingleTrack(t)">{{ t.err }} Click to try again</button>
+							<span ng-show="t.err!='Download failed.' && showError"><font color="red">{{ t.err }}</font></span>
 					</td>
 					<td ng-if="t.status=='DOWNLOADING'"
 						style="background-color:#000000">

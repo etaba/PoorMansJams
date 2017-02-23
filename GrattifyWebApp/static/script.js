@@ -7,12 +7,16 @@ app.config(['$httpProvider', function($httpProvider, $routeProvider) {
 
 app.factory('ytDownload', ['$http', function($http){
     var service = {};
-    service.downloadTrack = function(track){
-        return $http({
+    service.downloadTrack = function(track,serve=false){
+        var payload = {
                 url: "/downloadSingleTrack/",
                 method: 'POST',
-                data: {'track':track},
-            });
+                data: {'track':track,'serve':serve}
+            }
+        if(serve){
+            payload[responseType]="arraybuffer";
+        }
+        return $http(payload);
     };
     return service;
 }])
@@ -27,10 +31,45 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDo
         $scope.entry.entryType = "track";
     }
 
+    $scope.removeLinkError = function(track){
+        if(track["status"] == 'ERROR' &&
+            track["err"] != 'Download failed.'){
+            track["status"] = '';
+        }
+    }
 
+    $scope.downloadSingleTrack = function(track){
+        //move loading bar
+        track['status'] = 'DOWNLOADING';
+        ytDownload.downloadTrack(track).then(function success(response) {
+            if(!response.data.success){
+                //track failed to download
+                track['status'] = 'ERROR';
+                track['err'] = "Download failed."
+            }
+            else{
+                track['status'] = 'COMPLETE';
+                var a = document.createElement('a');
+                var blob = new Blob([response.data], {'type':"application/octet-stream"}); //try octet-stream instead of zip if this breaks
+                a.href = URL.createObjectURL(blob);
+                a.download = track['title']+'-'+track['artist'];
+                a.click();
+            }},function error(response) {
+                //track failed to download
+                track['status'] = 'ERROR';
+                track['err'] = "Download failed."
+            });
+    }
 
     $scope.downloadTracksRecursive = function(playlists, playlistIndex, trackIndex){
-        if(playlistIndex < playlists.length && trackIndex < playlists[playlistIndex].tracks.length){
+        //DUMMY:https://www.youtube.com/watch?v=6e-sCFZlM1s
+        if(playlists[playlistIndex].tracks[trackIndex]['status'] == 'ERROR' || 
+           playlists[playlistIndex].tracks[trackIndex]['ytlink'] == undefined){
+            //skip this track
+            return $scope.downloadTracksRecursive(playlists,++playlistIndex,++trackIndex);
+        }
+        if(playlistIndex < playlists.length &&
+           trackIndex < playlists[playlistIndex].tracks.length){
             //move loading bar
             playlists[playlistIndex].tracks[trackIndex]['status'] = 'DOWNLOADING';
             ytDownload.downloadTrack(playlists[playlistIndex].tracks[trackIndex]).then(function success(response) {
@@ -38,7 +77,7 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDo
                 {
                     //track failed to download
                     $scope.selectedPlaylists[playlistIndex].tracks[trackIndex]['status'] = 'ERROR';
-                    $scope.selectedPlaylists[playlistIndex].tracks[trackIndex]['err'] = "Download failed"
+                    $scope.selectedPlaylists[playlistIndex].tracks[trackIndex]['err'] = "Download failed."
                 }
                 else
                 {
@@ -63,6 +102,12 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDo
 
     var zipTracks = function(playlists,playlistIndex){
         var playlist = playlists[playlistIndex];
+        if (playlist['tracks'].find(function(track){
+            track['status'] != 'ERROR';
+        }).length == 0){
+            //no tracks in this playlist successfully downloaded, skip playlist
+            zipTracks(playlists,)
+        }
         $http({
             url: "/zipTracks/",
             method: 'POST',

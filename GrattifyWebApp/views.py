@@ -15,12 +15,23 @@ def index(request):
 def downloadSingleTrack(request):
 	saveDir = "songCache"
 	track = request.POST['track']
+	if not 'title' in track:
+		track['title'] = ""
+	if not 'artist' in track:
+		track['artist'] = ""
 	if grattify.downloadSong(track['title'],track['artist'],1,saveDir,ytlink=track['ytlink']):
 		success = True
 	else:
 		success = False
-	response_data = {'success':success}
-	return HttpResponse(json.dumps(response_data),content_type="application/json")
+	if request.POST['serve']: #upload file to client
+		savePath = grattify.makeSavepath(track['title'],track['artist'],saveDir)
+		print "savePath to download from: ",savePath
+		response_data = HttpResponse(savePath, content_type='application/octet-stream') #try octet-stream instead of zip if problems
+		response_data['Content-Disposition'] = 'attachment; filename="%s - %s.mp3"' % (track['artist'],track['title'])
+		return response
+	else: #return without file
+		response_data = {'success':success}
+		return HttpResponse(json.dumps(response_data),content_type="application/json")
 
 def zipTracks(request):
 	zipName = request.POST['playlistName']+".zip"
@@ -28,9 +39,9 @@ def zipTracks(request):
 	zipOut = zipfile.ZipFile(zipDir,'w',zipfile.ZIP_STORED,True)
 	os.chdir("songCache")
 	for track in request.POST['tracks']:
-			savePath = grattify.makeSavepath(track['title'],track['artist'],".")
-			if os.path.exists(savePath):
-				zipOut.write(savePath)
+		savePath = grattify.makeSavepath(track['title'],track['artist'],".")
+		if os.path.exists(savePath):
+			zipOut.write(savePath)
 	os.chdir("..")
 	zipOut.close()
 	response_data = {"zipName":zipName}
@@ -38,8 +49,6 @@ def zipTracks(request):
 
 def serveZip(request):
 	zipPath = "tmp/" + request.session.session_key + "/" + request.GET['zipName']
-	print "in serveZip, serving this zip:"
-	print zipPath
 	if os.path.exists(zipPath):
 		servableZip = open(zipPath,'rb')
 		response = HttpResponse(servableZip, content_type='application/zip') #try octet-stream instead of zip if problems
