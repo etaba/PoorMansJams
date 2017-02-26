@@ -15,10 +15,14 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<!-- Angular Routes -->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
-
+	
+	<script src="{% static "script.js" %}"></script>
+	<!-- Google API -->
+	<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
+	
 	<link rel="stylesheet" href="{% static "styles.css" %}"></link>
 
-	<script src="{% static "script.js" %}"></script>
+	
 </head>
 <body ng-app="myApp">
 	<div  ng-controller="indexCtrl" class="container-fluid">
@@ -44,7 +48,7 @@
 	</div>
 	<br>
 	<button ng-click="loginSpotify()" class="gratify-button">Import Spotify</button>
-	<button   ng-click="downloadTracksRecursive(selectedPlaylists,0,0)" 
+	<button   ng-click="download(selectedPlaylists)" 
 			  ng-show="selectedPlaylists.length > 0"
 			  class="gratify-button">Download All</button>
 	{% verbatim %}

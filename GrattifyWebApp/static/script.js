@@ -1,3 +1,11 @@
+var googleApiReady = false;
+googleApiClientReady = function(){
+    gapi.client.setApiKey('AIzaSyCEP6Mt-yoKXgxdJ8et7HFgGSLLJKjTe-Y');
+    gapi.client.load('youtube','v3',function() {
+        googleApiReady = true;
+    });
+}
+
 var app = angular.module('myApp', ["ngRoute"]);
 
 app.config(['$httpProvider', function($httpProvider, $routeProvider) {
@@ -5,7 +13,7 @@ app.config(['$httpProvider', function($httpProvider, $routeProvider) {
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 }]);
 
-app.factory('ytDownload', ['$http', function($http){
+app.factory('ytService', ['$http','$q', function($http,$q){
     var service = {};
     service.downloadTrack = function(track,serve=false){
         var payload = {
@@ -14,21 +22,72 @@ app.factory('ytDownload', ['$http', function($http){
                 data: {'track':track,'serve':serve}
             }
         if(serve){
-            payload[responseType]="arraybuffer";
+            payload.responseType="arraybuffer";
         }
         return $http(payload);
+    };
+
+    service.getYtLink = function(searchString){
+        return $q(function(resolve,reject){
+            if (googleApiReady){
+                var ytSearchResults = [];
+                var request = gapi.client.youtube.search.list({
+                        q: searchString,
+                        part: 'snippet',
+                        maxResults: 10
+                });
+                request.execute(function(response)  {         
+                    if(response.result.pageInfo.totalResults == 0){
+                        reject();
+                    }                                                                           
+                    var srchItems = response.result.items;
+                    var ids = '';                 
+                    srchItems.forEach(function(item, index) {
+                        vidId = item.id.videoId;
+                        vidTitle = item.snippet.title;  
+                        vidThumburl =  item.snippet.thumbnails.default.url;                 
+                        vidThumbimg = '<pre><img id="thumb" src="'+vidThumburl+'" alt="No  Image Available." style="width:204px;height:128px"></pre>';                   
+                        ytSearchResults.push({'title':vidTitle,
+                                              'thumbUrl':vidThumburl,
+                                              'thumbImg':vidThumbimg,
+                                              'id':vidId,
+                                              'link':'https://www.youtube.com/watch?v='+vidId
+                                               });
+                        ids += ',' + vidId;                   
+                    });
+                    var detailsRequest = gapi.client.youtube.videos.list({
+                        part: 'contentDetails',//add 'statistics' for view count info 
+                        id: ids
+                    })
+                    detailsRequest.execute(function(response){
+                        srchItems = response.result.items;
+                        srchItems.forEach(function(item, index) {
+                            searchResult = ytSearchResults.find(function(sR){
+                                if (sR['id']==item['id']){
+                                    return sR;
+                                }
+                            });
+                            searchResult['duration'] = item.contentDetails.duration;
+                        });
+                        resolve(ytSearchResults);
+                    })
+                    
+                })
+            }              
+        });
     };
     return service;
 }])
 
 
 
-app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDownload) {
+app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytService) {
     var init = function(){
         document.getElementById("artist_input").focus();
         $scope.selectedPlaylists = [];
         $scope.entry = {};
         $scope.entry.entryType = "track";
+        console.log(googleApiReady);
     }
 
     $scope.removeLinkError = function(track){
@@ -38,80 +97,92 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDo
         }
     }
 
+    $scope.download = function(playlists){
+        //check single song case
+        if(playlists.length == 1 &&
+            playlists[0].tracks.length == 1){
+            $scope.downloadSingleTrack(playlists[0].tracks[0]);
+        }
+        else{
+            $scope.downloadTracksRecursive(playlists,0,0);
+        }
+    }
+
     $scope.downloadSingleTrack = function(track){
         //move loading bar
         track['status'] = 'DOWNLOADING';
-        ytDownload.downloadTrack(track).then(function success(response) {
-            if(!response.data.success){
-                //track failed to download
-                track['status'] = 'ERROR';
-                track['err'] = "Download failed."
-            }
-            else{
-                track['status'] = 'COMPLETE';
+        ytService.downloadTrack(track,true).then(function success(response) {
                 var a = document.createElement('a');
-                var blob = new Blob([response.data], {'type':"application/octet-stream"}); //try octet-stream instead of zip if this breaks
+                var blob = new Blob([response.data], {'type':"audio/mpeg-stream"}); //try octet-stream instead of zip if this breaks
                 a.href = URL.createObjectURL(blob);
-                a.download = track['title']+'-'+track['artist'];
+                a.download = track['artist']+' - '+track['title']+'.mp3'  ;
                 a.click();
-            }},function error(response) {
+                track['status'] = 'COMPLETE';
+            },function error(response) {
+                console.log('error')
+                console.log(response);
                 //track failed to download
                 track['status'] = 'ERROR';
                 track['err'] = "Download failed."
             });
     }
-
+//https://www.youtube.com/watch?v=EUHcNeg_e9g
     $scope.downloadTracksRecursive = function(playlists, playlistIndex, trackIndex){
-        //DUMMY:https://www.youtube.com/watch?v=6e-sCFZlM1s
-        if(playlists[playlistIndex].tracks[trackIndex]['status'] == 'ERROR' || 
-           playlists[playlistIndex].tracks[trackIndex]['ytlink'] == undefined){
-            //skip this track
-            return $scope.downloadTracksRecursive(playlists,++playlistIndex,++trackIndex);
+        //base case
+        if(trackIndex >= playlists[playlistIndex]['tracks'].length){
+            if(++playlistIndex >= playlists.length){
+                //all playlists downloaded, time to zip
+                zipTracks(playlists, 0);
+                return;
+            }
+            else{
+                //reset trackIndex to start next playlist download
+                trackIndex=0;
+            }
         }
-        if(playlistIndex < playlists.length &&
-           trackIndex < playlists[playlistIndex].tracks.length){
-            //move loading bar
-            playlists[playlistIndex].tracks[trackIndex]['status'] = 'DOWNLOADING';
-            ytDownload.downloadTrack(playlists[playlistIndex].tracks[trackIndex]).then(function success(response) {
-                if(!response.data.success)
-                {
-                    //track failed to download
-                    $scope.selectedPlaylists[playlistIndex].tracks[trackIndex]['status'] = 'ERROR';
-                    $scope.selectedPlaylists[playlistIndex].tracks[trackIndex]['err'] = "Download failed."
-                }
-                else
-                {
-                    $scope.selectedPlaylists[playlistIndex].tracks[trackIndex]['status'] = 'COMPLETE';
-                }
-                //download next song
-                if(++trackIndex == playlists[playlistIndex]['tracks'].length){
-                    if(++playlistIndex == playlists.length){
-                        //all playlists downloaded, time to zip
-                        zipTracks(playlists, 0);
-                        return;
-                    }
-                    else{
-                        //reset trackIndex to start next playlist download
-                        trackIndex=0;
-                    }
-                }
-                return $scope.downloadTracksRecursive(playlists,playlistIndex,trackIndex);
-                });
+        track = playlists[playlistIndex].tracks[trackIndex];
+        //skip tracks that have error status
+        if(track['status'] == 'ERROR' || 
+           track['ytlink'] == undefined){
+            return $scope.downloadTracksRecursive(playlists,playlistIndex,++trackIndex);
         }
+        //move loading bar
+        track['status'] = 'DOWNLOADING';
+        ytService.downloadTrack(track).then(function success(response) {
+            if(!response.data.success)
+            {
+                //track failed to download
+                track['status'] = 'ERROR';
+                track['err'] = "Download failed."
+            }
+            else
+            {
+                track['status'] = 'COMPLETE';
+            }
+            //download next song
+            return $scope.downloadTracksRecursive(playlists,playlistIndex,++trackIndex);
+        });
     };
 
     var zipTracks = function(playlists,playlistIndex){
+        if(playlistIndex >= playlists.length){
+            return;
+        }
         var playlist = playlists[playlistIndex];
-        if (playlist['tracks'].find(function(track){
-            track['status'] != 'ERROR';
-        }).length == 0){
+        var readyTracks = playlist['tracks'].filter(function(track){
+                if (track['status'] == 'COMPLETE'){
+                    return track;
+                }
+            });
+        if (readyTracks == undefined){
             //no tracks in this playlist successfully downloaded, skip playlist
-            zipTracks(playlists,)
+            zipTracks(playlists,++playlistIndex);
+            return;
         }
         $http({
             url: "/zipTracks/",
             method: 'POST',
-            data: {'tracks':playlist['tracks'], 'playlistName':playlist['name']}
+            data: {'tracks':readyTracks, 'playlistName':playlist['name']}
         }).then(function success(response){
             //download zip
             zipName = response.data['zipName'];
@@ -126,9 +197,8 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDo
                     a.href = URL.createObjectURL(blob);
                     a.download = zipName;
                     a.click();
-                    if(++playlistIndex < playlists.length){
-                        zipTracks(playlists,playlistIndex)
-                    }
+                    //recursive step
+                    zipTracks(playlists,++playlistIndex)
             }, function error(response){
                 alert('Failed to download '+zipName+' from server');
             });
@@ -162,6 +232,54 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDo
             $scope.addTrack(entry);
         }
     }
+
+    var findNthBestLink = function(track,n){
+        return $q(function(resolve,reject){
+            var searchString = track['artist'] + ' ' + track['title'];
+            searchString.replace('[^0-9a-zA-Z ]+','');
+            console.log(searchString);
+            ytService.getYtLink(searchString).then(function success(results){
+                badKeywords = ["video","album","live","cover","remix","instrumental","acoustic","karaoke"]
+                goodKeywords = ["audio","lyric"]
+
+                badKeywords = badKeywords.filter(function(bK){
+                    if (searchString.indexOf(bK) == -1){
+                        return bK;
+                    }
+                });
+
+                var scoreIndex = [];
+                results.forEach(function(result,i){
+                    var matchScore = i;
+                    badKeywords.forEach(function(bK){
+                        if (result['title'].indexOf(bK) != -1){
+                            matchScore += 1.1;
+                        }
+                    })
+                    goodKeywords.forEach(function(gK){
+                        if (result['title'].indexOf(gK) != -1){
+                            matchScore -= 1.1;
+                        }
+                    })
+                    if(result['title'].indexOf(track['artist'].replace('the ','')) != -1){
+                        matchScore -= 5;
+                    }
+                    if(result['title'].indexOf(track['title']) != -1){
+                        matchScore -= 3;
+                    }
+                    scoreIndex.push([i,matchScore])
+                });
+                var bestToWorst = scoreIndex.sort(function(a,b){
+                    return a[1] - b[1];
+                })
+                var nthBestIndex = bestToWorst[n-1][0]
+                resolve(results[nthBestIndex]);
+            }, function error(){
+                reject();
+            });
+        })
+        
+    }
     
     $scope.addTrack = function(entry){
         var track = {'artist':entry.artist, 'title':entry.title, 'ytlink':entry.ytlink, 'entryType':entry.entryType};
@@ -171,13 +289,13 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDo
             return;
         }
         if ($scope.selectedPlaylists.length > 0 && $scope.selectedPlaylists[0]['name']=="Gratify Playlist"){
-            var duplicates = $scope.selectedPlaylists[0]['tracks'].find(function(t,i){
+            var duplicate = $scope.selectedPlaylists[0]['tracks'].find(function(t,i){
                 if (t.artist == track.artist && t.title == track.title)
                     {
                         return t;
                     }
                 });
-            if(duplicates != undefined)
+            if(duplicate != undefined)
             {
                 //do something to duplicate row
                 alert('you already said that');
@@ -192,16 +310,16 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDo
         if(track.ytlink == undefined) //link not provided
         {
             track.ytlink="Smart Search..."
-            $http({
-                url: "getYtlink",
-                method: 'POST',
-                data: track
-            }).then(function success(response) {
-                track.ytlink = response.data['link'];
+            findNthBestLink(track,1).then(function(best){
+                if(track.ytlink=="Smart Search..."){
+                    track.ytlink = best['link'];
+                } 
             }, function error(response){
-                track['status']='ERROR';
-                track['err'] = "Smart search failed. Please enter a link.";
-                track['ytlink'] = "Link Needed"
+                    if(track.ytlink=="Smart Search..."){
+                        track['status']='ERROR';
+                        track['err'] = "Smart search failed. Please enter a link.";
+                        track['ytlink'] = "Link Needed"
+                    }
             });
         }
         $scope.entry.artist = undefined;
@@ -302,7 +420,7 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytDo
 });
 
 
-app.controller('spotifyCtrl', function($scope, $http, ytDownload) {
+app.controller('spotifyCtrl', function($scope, $http, ytService) {
     var init = function() {
         //grant = {'access_token','state','token_type','expires_in'}
         $scope.spotifyGrant = $scope.parseHash(String(window.location.hash));
