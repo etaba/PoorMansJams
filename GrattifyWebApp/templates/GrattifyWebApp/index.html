@@ -2,6 +2,7 @@
 {% load static %}
 <head>
 	<title>Grand Theft Audio</title>
+	<a style="display:none" id="y2mp3Link" href="#" data-href="https://www.youtube.com/watch?v=KMU0tzLwhbE" download="test.mp3" rel="nofollow" class="y2m">Developers1</a>
 	<center><h1><font color="#cf66ff">Grand Theft Audio</font></h1><center>
 	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,7 +16,7 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<!-- Angular Routes -->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
-	
+	<script type="text/javascript" src="https://www.youtube2mp3.cc/js/api.js"></script>
 	<script src="{% static "script.js" %}"></script>
 	<!-- Google API -->
 	<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
@@ -76,12 +77,16 @@
 					<td align="center" colspan="3"><h5>{{ p.name }}</h5></td>
 				</tr>
 				<tr ng-repeat="t in p.tracks" 
-					ng-mouseover="modifyRow=true;" 
-					ng-mouseleave="modifyRow=false;" 
-					ng-style="getRowStyle(t.status)">
+					ng-mouseover="hovering=true;" 
+					ng-mouseleave="hovering=false;"
+					ng-click="modifyRow=true;"
+					ng-style="getRowStyle(t.status, hovering)">
 					<td>
-						<button ng-show="modifyRow" ng-click="deletePlaylistRow(p.id,$index)" class="btn btn-danger btn-xs" title="Remove">
+						<button ng-show="hovering && !modifyRow" ng-click="deletePlaylistRow(p.id,$index)" class="btn btn-danger btn-xs" title="Remove">
 							<span class="glyphicon glyphicon-remove"></span>
+						</button>
+						<button ng-show="modifyRow" ng-click="modifyRow=false;$event.stopPropagation();" class="btn btn-success btn-xs" title="Done">
+							<span class="glyphicon glyphicon-ok"></span>
 						</button>
 					</td>
 					<td ng-click="editPlaylistRow(p.id,$index)">

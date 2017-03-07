@@ -11,5 +11,6 @@ urlpatterns = [
     url(r'^serveZip',views.serveZip, name = 'serveZip'),
     url(r'^callback/',views.callback, name = 'callback'),
     url(r'^zipTracks/',views.zipTracks, name = 'zipTracks'),
+    url(r'^getYtlink/',views.getYtlink, name = 'getYtlink'),
     url(r'^downloadSingleTrack/',views.downloadSingleTrack, name = 'downloadSingleTrack')
 ]

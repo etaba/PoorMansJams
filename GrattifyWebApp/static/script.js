@@ -15,7 +15,7 @@ app.config(['$httpProvider', function($httpProvider, $routeProvider) {
 
 app.factory('ytService', ['$http','$q', function($http,$q){
     var service = {};
-    service.downloadTrack = function(track,serve=false){
+    service.downloadTrackBackEnd = function(track,serve=false){
         var payload = {
                 url: "/downloadSingleTrack/",
                 method: 'POST',
@@ -25,6 +25,37 @@ app.factory('ytService', ['$http','$q', function($http,$q){
             payload.responseType="arraybuffer";
         }
         return $http(payload);
+    };
+
+    service.downloadSingleTrackFrontEnd = function(track){
+        var a = document.getElementById('y2mp3Link');
+        a.attributes['data-href'].value = track.ytlink;
+        a.download = "testNAme.mp3";
+        a.click();
+        return;
+        //ATTEMPT 2
+        //var head = document.getElementsByTagName('head')[0]
+        //var a = document.createElement('a');
+        //head.appendChild(a);
+        //a.href = "#";
+        //a.attributes['data-href'] = "https://www.youtube.com/watch?v=KMU0tzLwhbE"
+        //a.className = "y2m";
+        //a.rel = "nofollow"; 
+        //a.click();
+        //return;
+
+        //ATTEMPT 3
+        //$http({
+        //    url: "http://www.trciw.yt-downloader.org/download.php",
+        //    method: 'GET',
+        //    params: {'id':"55f583ab4f53cac3497777316e7bc161",'d':"KMU0tzLwhb"},
+        //    //responseType: 'arraybuffer'
+        //    }).then(function success(response){
+        //        console.log(response);
+        //    }, function error(response){
+        //        console.log(response);
+        //    });
+        //return;
     };
 
     service.getYtLink = function(searchString){
@@ -43,18 +74,24 @@ app.factory('ytService', ['$http','$q', function($http,$q){
                     var srchItems = response.result.items;
                     var ids = '';                 
                     srchItems.forEach(function(item, index) {
-                        vidId = item.id.videoId;
-                        vidTitle = item.snippet.title;  
-                        vidThumburl =  item.snippet.thumbnails.default.url;                 
-                        vidThumbimg = '<pre><img id="thumb" src="'+vidThumburl+'" alt="No  Image Available." style="width:204px;height:128px"></pre>';                   
-                        ytSearchResults.push({'title':vidTitle,
-                                              'thumbUrl':vidThumburl,
-                                              'thumbImg':vidThumbimg,
-                                              'id':vidId,
-                                              'link':'https://www.youtube.com/watch?v='+vidId
-                                               });
-                        ids += ',' + vidId;                   
+                        if (item.id.kind=="youtube#video"){
+                            vidId = item.id.videoId;
+                            vidTitle = item.snippet.title;
+                            vidThumburl =  ("thumbnails" in item.snippet) ? item.snippet.thumbnails.default.url : "";                 
+                            vidThumbimg = '<pre><img id="thumb" src="'+vidThumburl+'" alt="No  Image Available." style="width:204px;height:128px"></pre>';                   
+                            ytSearchResults.push({'title':vidTitle,
+                                                  'thumbUrl':vidThumburl,
+                                                  'thumbImg':vidThumbimg,
+                                                  'id':vidId,
+                                                  'link':'https://www.youtube.com/watch?v='+vidId
+                                                   });
+                            ids += ',' + vidId; 
+                        }
+                                          
                     });
+                    if(ids == ''){
+                        reject();
+                    }
                     var detailsRequest = gapi.client.youtube.videos.list({
                         part: 'contentDetails',//add 'statistics' for view count info 
                         id: ids
@@ -80,7 +117,7 @@ app.factory('ytService', ['$http','$q', function($http,$q){
 }])
 
 
-
+//The Girl I Love She Got Long Black Wavy Hair - 22/6/69 Pop Sundae", artist: "Led Zeppelin
 app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytService) {
     var init = function(){
         document.getElementById("artist_input").focus();
@@ -101,17 +138,17 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
         //check single song case
         if(playlists.length == 1 &&
             playlists[0].tracks.length == 1){
-            $scope.downloadSingleTrack(playlists[0].tracks[0]);
+            ytService.downloadSingleTrackFrontEnd(playlists[0].tracks[0]);
         }
         else{
-            $scope.downloadTracksRecursive(playlists,0,0);
+            $scope.downloadTracksFrontEnd(playlists,0,0);
         }
     }
 
-    $scope.downloadSingleTrack = function(track){
+    $scope.downloadSingleTrackBackEnd = function(track){
         //move loading bar
         track['status'] = 'DOWNLOADING';
-        ytService.downloadTrack(track,true).then(function success(response) {
+        ytService.downloadTrackBackEnd(track,true).then(function success(response) {
                 var a = document.createElement('a');
                 var blob = new Blob([response.data], {'type':"audio/mpeg-stream"}); //try octet-stream instead of zip if this breaks
                 a.href = URL.createObjectURL(blob);
@@ -126,8 +163,26 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
                 track['err'] = "Download failed."
             });
     }
-//https://www.youtube.com/watch?v=EUHcNeg_e9g
-    $scope.downloadTracksRecursive = function(playlists, playlistIndex, trackIndex){
+
+    $scope.downloadTracksFrontEnd = function(playlists,playlistIndex,trackIndex){
+        //base case
+        if(trackIndex >= playlists[playlistIndex]['tracks'].length){
+            if(++playlistIndex >= playlists.length){
+                //all playlists downloaded, done
+                return;
+            }
+            else{
+                //reset trackIndex to start next playlist download
+                trackIndex=0;
+            }
+        }
+        track = playlists[playlistIndex].tracks[trackIndex];
+        ytService.downloadSingleTrackFrontEnd(track);
+        setTimeout(function(){$scope.downloadTracksFrontEnd(playlists,playlistIndex,++trackIndex);},5000);
+    }
+
+    //https://www.youtube.com/watch?v=EUHcNeg_e9g
+    $scope.downloadTracksRecursiveBackEnd = function(playlists, playlistIndex, trackIndex){
         //base case
         if(trackIndex >= playlists[playlistIndex]['tracks'].length){
             if(++playlistIndex >= playlists.length){
@@ -144,11 +199,11 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
         //skip tracks that have error status
         if(track['status'] == 'ERROR' || 
            track['ytlink'] == undefined){
-            return $scope.downloadTracksRecursive(playlists,playlistIndex,++trackIndex);
+            return $scope.downloadTracksRecursiveBackEnd(playlists,playlistIndex,++trackIndex);
         }
         //move loading bar
         track['status'] = 'DOWNLOADING';
-        ytService.downloadTrack(track).then(function success(response) {
+        ytService.downloadTrackBackEnd(track).then(function success(response) {
             if(!response.data.success)
             {
                 //track failed to download
@@ -160,7 +215,7 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
                 track['status'] = 'COMPLETE';
             }
             //download next song
-            return $scope.downloadTracksRecursive(playlists,playlistIndex,++trackIndex);
+            return $scope.downloadTracksRecursiveBackEnd(playlists,playlistIndex,++trackIndex);
         });
     };
 
@@ -236,7 +291,9 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
     var findNthBestLink = function(track,n){
         return $q(function(resolve,reject){
             var searchString = track['artist'] + ' ' + track['title'];
-            searchString.replace('[^0-9a-zA-Z ]+','');
+            //searchString = searchString.replace(/[^0-9a-zA-Z ]+/,'');
+            //searchString = "led+zeppelin+the+girl+i+love+she+got+long+black+wavy+hair++22669+pop+sundae"
+            //searchString = "led zeppelin the girl i love she got long black wavy hair  22669 pop sundae"
             console.log(searchString);
             ytService.getYtLink(searchString).then(function success(results){
                 badKeywords = ["video","album","live","cover","remix","instrumental","acoustic","karaoke"]
@@ -275,7 +332,16 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
                 var nthBestIndex = bestToWorst[n-1][0]
                 resolve(results[nthBestIndex]);
             }, function error(){
-                reject();
+                //try getting link using gratify server's algorithm implementation (which for some stupid reason yields different results)
+                $http({
+                        url: "getYtlink/",
+                        method: 'POST',
+                        data: track
+                    }).then(function success(response) {
+                        resolve(response.data);
+                    }, function error(response){
+                        reject();
+                    });
             });
         })
         
@@ -363,17 +429,16 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
                     if(track.ytlink == undefined) //link not provided
                     {
                         track.ytlink="Smart Search..."
-                        $http({
-                            url: "../getYtlink",
-                            method: 'POST',
-                            data: track
-                        }).then(function success(response) {
-                            //$scope.tracks[0].ytlink = response.data.link;
-                            track.ytlink = response.data.link;
+                        findNthBestLink(track,1).then(function(best){
+                            if(track.ytlink=="Smart Search..."){
+                                track.ytlink = best['link'];
+                            } 
                         }, function error(response){
-                            track['status']='ERROR'
-                            track['err'] = "Smart search failed. Please enter a link."
-                            track['ytlink'] = "Link Needed"
+                                if(track.ytlink=="Smart Search..."){
+                                    track['status']='ERROR';
+                                    track['err'] = "Smart search failed. Please enter a link.";
+                                    track['ytlink'] = "Link Needed"
+                                }
                         });
                     }
                 })
@@ -398,7 +463,10 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
           }
     }
 
-    $scope.getRowStyle = function(status){
+    $scope.getRowStyle = function(status,hovering){
+        if(hovering){
+            return {'background-color':'#efccff','border':'solid black'}
+        }
         switch(status){
             case "ERROR":
                 return {'background-color':'#ff6666','border':'solid black'};
