@@ -2,12 +2,14 @@
 {% load static %}
 <head>
 	<title>Grand Theft Audio</title>
-	<a style="display:none" id="y2mp3Link" href="#" data-href="https://www.youtube.com/watch?v=KMU0tzLwhbE" download="test.mp3" rel="nofollow" class="y2m">Developers1</a>
+	<a style="display:none" id="y2mp3Link" href="#" data-href="https://www.youtube.com/watch?v=KMU0tzLwhbE" rel="nofollow" class="y2m">Developers1</a>
+	<iframe src="https://www.youtube2mp3.cc/button-api/?#YOUTUBE_VIDEO_ID|FORMAT" width="128" height="32" scrolling="no" style="border:none";></iframe>
+	<a href="http://convert2mp3.net/share.php?url=https://www.youtube.com/watch?v=RYMH3qrHFEM" rel="nofollow" download="test.mp3">convert2Test</a>
 	<center><h1><font color="#cf66ff">Grand Theft Audio</font></h1><center>
 	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, initial-scale=1">
   	<!-- Latest AngularJS -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<!-- jQuery library -->
@@ -17,11 +19,15 @@
 	<!-- Angular Routes -->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
 	<script type="text/javascript" src="https://www.youtube2mp3.cc/js/api.js"></script>
+	<!--Angular Bootstrap UI-->
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+	<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
+	<link rel="stylesheet" href="{% static "styles.css" %}"></link>
 	<script src="{% static "script.js" %}"></script>
 	<!-- Google API -->
 	<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
 	
-	<link rel="stylesheet" href="{% static "styles.css" %}"></link>
 
 	
 </head>
@@ -35,9 +41,18 @@
 	<br>
 	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="track"/><font color="#ffe680">Track</font>
 	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="album"/><font color="#ffe680">Album</font>
+	<input type="text" ng-model="entry.artist" placeholder="Artist" uib-typeahead="address for address in getArtists($viewValue)" typeahead-loading="loadingLocations" typeahead-no-results="noResults" id="artist_input">
+    <input type="text" ng-model="entry.title" placeholder="Track or Album Title" ng-keypress="onKeyPress($event,entry)" uib-typeahead="address for address in getTrackOrAlbums($viewValue)" typeahead-loading="loadingLocations" typeahead-no-results="noResults" >
+    <i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+    <div ng-show="noResults">
+      <i class="glyphicon glyphicon-remove"></i> No Results Found
+    </div>
+    <!--
 	<input type="text"  ng-model="entry.artist" placeholder="Artist" ng-keypress="onKeyPress($event,entry)" id="artist_input"/>
 	<input type="text"  ng-model="entry.title"  placeholder="Track or Album Title" ng-keypress="onKeyPress($event,entry)"/>
+	-->
 	<input type="text"  ng-model="entry.ytlink" placeholder="Youtube Link (optional)" ng-keypress="onKeyPress($event,entry)"/>
+    
 	<button ng-click="processEntry(entry)" class="btn" style="background-color:#cf66ff">
 		<span class="glyphicon glyphicon-plus" style="color:#ffe680"></span>
 	</button>

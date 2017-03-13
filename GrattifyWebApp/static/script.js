@@ -6,7 +6,7 @@ googleApiClientReady = function(){
     });
 }
 
-var app = angular.module('myApp', ["ngRoute"]);
+var app = angular.module('myApp', ["ngRoute", 'ngAnimate', 'ngSanitize', 'ui.bootstrap']);
 
 app.config(['$httpProvider', function($httpProvider, $routeProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -262,29 +262,133 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
         });
     }
 
-    $scope.processEntry = function(entry){
-        if(entry.entryType == "album")
-        {
-            if(entry.title==undefined || entry.artist==undefined){
-                alert("Artist AND Name of album required");
-                return
+    $scope.getLocation = function(val) {
+    return $http.get('//maps.googleapis.com/maps/api/geocode/json', {
+      params: {
+        address: val,
+        sensor: false
+      }
+    }).then(function(response){
+      locArray =  response.data.results.map(function(item){
+        return item.formatted_address;
+      });
+      return locArray;
+    });
+    };
+
+    $scope.getArtists = function(val){
+        var apiKey = "6b6c09f642b5cfb021742ab36859cdb3"
+        return $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.search", {
+            params: {
+                artist: val,
+                api_key: apiKey
             }
-            $http({
-                url: "getAlbumTracks",
-                method: 'POST',
-                data: entry//{'artist':$scope.track.artist, 'title':$scope.track.title}
-            }).then(function success(response) {
-                    for(albumTrack of response.data.tracks){
-                        albumTrack.entryType = "track"
-                        $scope.addTrack(albumTrack);
-                    }
-                }, function error(response) {
-                  alert("Could not find that album :(");
+        }).then(function(response){
+                parser = new DOMParser();
+                xmlResponse = parser.parseFromString(response.data,"text/xml");
+                artists = xmlResponse.getElementsByTagName("artist");
+                var artistArray = Array.prototype.slice.call( artists );
+                artistArray = artistArray.map(function(artist){
+                    return artist.getElementsByTagName('name')[0].innerHTML;
                 });
+                return artistArray
+            });
+    }
+
+    $scope.getTrackOrAlbums = function(val){
+        if($scope.entry.entryType == "track"){
+            return $scope.getTracks(val);
+        }
+        if($scope.entry.entryType == "album"){
+            return $scope.getAlbums(val);
+        }
+    }
+
+    $scope.getAlbums = function(val){
+        var apiKey = "6b6c09f642b5cfb021742ab36859cdb3"
+        return $http.get("http://ws.audioscrobbler.com/2.0/?method=album.search", {
+            params: {
+                album: val,
+                api_key: apiKey
+            }
+        }).then(function(response){
+                parser = new DOMParser();
+                xmlResponse = parser.parseFromString(response.data,"text/xml");
+                albums = xmlResponse.getElementsByTagName("album");
+                var albumArray = Array.prototype.slice.call( albums );
+                albumArray = albumArray.map(function(album){
+                    return album.getElementsByTagName('name')[0].innerHTML;
+                });
+                return albumArray
+            });
+    }
+
+    $scope.getTracks = function(val){
+        var apiKey = "6b6c09f642b5cfb021742ab36859cdb3"
+        return $http.get("http://ws.audioscrobbler.com/2.0/?method=track.search", {
+            params: {
+                artist: $scope.entry.artist,
+                track: val,
+                api_key: apiKey
+            }
+        }).then(function(response){
+                parser = new DOMParser();
+                xmlResponse = parser.parseFromString(response.data,"text/xml");
+                tracks = xmlResponse.getElementsByTagName("track");
+                var trackArray = Array.prototype.slice.call( tracks );
+                trackArray = trackArray.map(function(track){
+                    return track.getElementsByTagName('name')[0].innerHTML;
+                });
+                return trackArray
+            });
+    }
+
+    $scope.processEntry = function(entry){
+        var entryCopy = {'artist':entry.artist, 'title':entry.title, 'ytlink':entry.ytlink, 'entryType':entry.entryType};
+        if(entryCopy.entryType == "album")
+        {
+            //Application name    TabaTest
+            var apiKey = "6b6c09f642b5cfb021742ab36859cdb3"
+            //Shared secret   08a659dcf86279cae8ad94eb6d459e10
+            //Registered to   eptaba'
+            $http.get("http://ws.audioscrobbler.com/2.0/?method=album.getinfo", {
+            params: {
+                album: entryCopy.title,
+                artist: entryCopy.artist,
+                api_key: apiKey
+                }
+            }).then(function success(response){
+                parser = new DOMParser();
+                xmlResponse = parser.parseFromString(response.data,"text/xml");
+                tracks = xmlResponse.getElementsByTagName("track");
+                for(track of tracks){
+                    $scope.addTrack({'artist':entryCopy.artist,'title':track.getElementsByTagName('name')[0].innerHTML})
+                }
+            }, function error(){
+                alert("Could not find that album :(");
+            })
+
+
+            //if(entry.title==undefined || entry.artist==undefined){
+            //    alert("Artist AND Name of album required");
+            //    return
+            //}
+            //$http({
+            //    url: "getAlbumTracks",
+            //    method: 'POST',
+            //    data: entry
+            //}).then(function success(response) {
+            //        for(albumTrack of response.data.tracks){
+            //            albumTrack.entryType = "track"
+            //            $scope.addTrack(albumTrack);
+            //        }
+            //    }, function error(response) {
+            //      alert("Could not find that album :(");
+            //    });
         }
         else
         {
-            $scope.addTrack(entry);
+            $scope.addTrack(entryCopy);
         }
     }
 
