@@ -1,24 +1,13 @@
-/*Header Row/Title/Add Button: cf66ff
-  Track Row/Input Fields/Button Background: ffe866
-  Playlist/Downloading Row: efccff
-  Complete Row: 96ff66
+/*Header Row/Title/Add Button: ff0900
+  Track Row/Input Fields/Button Background: 00ddff
+  Playlist/Downloading Row: 0900ff
+  Complete Row: 6fff00
   Error Row: ff6666
   Background: 000000
-  Hover Row: efccff;
+  Hover Row: f7ff00;
 */
-div{
-  opacity: 1;
-}
-label{
-  background-color:white;
-  color:black;
-}
-p{
-  background-color:white;
-  color:black;
-}
 input[type="text"]::-webkit-input-placeholder {
-    color: #cf66ff;
+    color: #ff0900;
 }
 body{
   background-color: #000000;
@@ -27,42 +16,42 @@ tr{
   border: solid black;
 }
 input{
-  border: solid #cf66ff 2px;
-  background-color: #ffe866;
+  border: solid #ff0900 2px;
+  background-color: #00ddff;
 }
 .title{
-  color: #cf66ff;
+  color: #ff0900;
 }
 .primary-color{
-  color:#cf66ff;
+  color:#ff0900;
 }
 .secondary-color{
-  color: #ffe866;
+  color: #00ddff;
 }
 .playlist-row{
-  background-color:#efccff;
+  background-color:#0900ff;
 }
 .header-row{
-  background-color:#cf66ff;
+  background-color:#ff0900;
 }
 .complete-row{
-  background-color:#96ff66;
+  background-color:#6fff00;
 }
 .error-row{
   background-color:#ff6666;
 }
 .downloading-row{
-  background-color:#efccff;
+  background-color:#0900ff;
 }
 .default-row{
-  background-color:#ffe866;
+  background-color:#00ddff;
 }
 .hovering-row{
-  background-color:#efccff;
+  background-color:#f7ff00;
 }
 .button{
-  background-color: #ffe866;
-  color: #cf66ff;
+  background-color: #00ddff;
+  color: #ff0900;
 }
 .background-color{
   background-color:#000000;
@@ -83,7 +72,7 @@ input{
     to { transform: scale(1) rotate(360deg);}
 }
 .add-button {
-  background-color:#cf66ff;
+  background-color:#ff0900;
 }
 
 .gratify-button {
@@ -91,17 +80,17 @@ input{
   -moz-border-radius: 6;
   border-radius: 6px;
   font-family: Arial;
-  color: #cf66ff;
+  color: #ff0900;
   font-size: 17px;
-  background: #ffe866;
+  background: #00ddff;
   padding: 6px 20px 10px 20px;
-  border: solid #cf66ff 2px;
+  border: solid #ff0900 2px;
   text-decoration: none;
 }
 
 .gratify-button:hover {
-  background: #cf66ff;
-  border: solid #ffe866 2px;
-  color: #ffe866;
+  background: #ff0900;
+  border: solid #00ddff 2px;
+  color: #00ddff;
   text-decoration: none;
 }

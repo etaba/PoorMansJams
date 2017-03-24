@@ -6,9 +6,9 @@ googleApiClientReady = function(){
     });
 }
 
-var app = angular.module('myApp', ["ngRoute", 'ngAnimate', 'ngSanitize', 'ui.bootstrap']);
+var app = angular.module('myApp', ['ngAnimate', 'ngSanitize', 'ui.bootstrap']);
 
-app.config(['$httpProvider', function($httpProvider, $routeProvider) {
+app.config(['$httpProvider', function($httpProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 }]);
@@ -118,7 +118,7 @@ app.factory('ytService', ['$http','$q', function($http,$q){
 
 
 //The Girl I Love She Got Long Black Wavy Hair - 22/6/69 Pop Sundae", artist: "Led Zeppelin
-app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytService) {
+app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $timeout, ytService) {
     var init = function(){
         document.getElementById("artist_input").focus();
         $scope.selectedPlaylists = [];
@@ -131,17 +131,6 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
         if(track["status"] == 'ERROR' &&
             track["err"] != 'Download failed.'){
             track["status"] = '';
-        }
-    }
-
-    $scope.download = function(playlists){
-        //check single song case
-        if(playlists.length == 1 &&
-            playlists[0].tracks.length == 1){
-            ytService.downloadSingleTrackFrontEnd(playlists[0].tracks[0]);
-        }
-        else{
-            $scope.downloadTracksFrontEnd(playlists,0,0);
         }
     }
 
@@ -177,8 +166,12 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
             }
         }
         track = playlists[playlistIndex].tracks[trackIndex];
-        ytService.downloadSingleTrackFrontEnd(track);
-        setTimeout(function(){$scope.downloadTracksFrontEnd(playlists,playlistIndex,++trackIndex);},5000);
+        track['status'] = 'DOWNLOADING';
+        //ytService.downloadSingleTrackFrontEnd(track);
+        $timeout(function(){
+            track['status'] = 'COMPLETE';
+            $scope.downloadTracksFrontEnd(playlists,playlistIndex,++trackIndex);
+        },5000);
     }
 
     //https://www.youtube.com/watch?v=EUHcNeg_e9g
@@ -260,20 +253,20 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
         }, function error(response){
             alert('Failed to create zip for '+playlist['name']);
         });
-    }
+    };
 
     $scope.getLocation = function(val) {
-    return $http.get('//maps.googleapis.com/maps/api/geocode/json', {
-      params: {
-        address: val,
-        sensor: false
-      }
-    }).then(function(response){
-      locArray =  response.data.results.map(function(item){
-        return item.formatted_address;
-      });
-      return locArray;
-    });
+        return $http.get('//maps.googleapis.com/maps/api/geocode/json', {
+          params: {
+            address: val,
+            sensor: false
+          }
+        }).then(function(response){
+          locArray =  response.data.results.map(function(item){
+            return item.formatted_address;
+          });
+          return locArray;
+        });
     };
 
     $scope.getArtists = function(val){
@@ -567,30 +560,76 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, ytSe
           }
     }
 
-    $scope.getRowStyle = function(status,hovering){
+    $scope.getRowClass = function(status,hovering){
         if(hovering){
-            return {'background-color':'#efccff','border':'solid black'}
+            return 'hovering-row'
         }
         switch(status){
-            case "ERROR":
-                return {'background-color':'#ff6666','border':'solid black'};
-                break;
             case "COMPLETE":
-                return {'background-color':'#66ff66','border':'solid black'};
+                return 'complete-row';
+                break;
+            case "ERROR":
+                return 'error-row';
                 break;
             case "DOWNLOADING":
-                return {'background-color':'#efccff','border':'solid black'};
+                return 'downloading-row';
                 break;
             default:
-                return {'background-color':'#ffe680','border':'solid black'};
+                return 'default-row';
                 break;
         }
     }
+
+
 
     init();
 
 });
 
+app.controller('headCtrl', function($scope,$http,$window){
+    $scope.debugMode = false;
+
+    $scope.dynamicStylesheet = "/static/styles.css"
+    $scope.PRIMARY = "cf66ff";
+    $scope.SECONDARY = "ffe866";
+    $scope.PRIMARY_LIGHT = "efccff";
+    $scope.SUCCESS_ROW = "96ff66";
+    $scope.BACKGROUND = "000000";
+    $scope.HOVER_ROW = "efccff";
+    $scope.OPACITY = "1";
+    $scope.changeStyle = function(PRIMARY,PRIMARY_LIGHT,SECONDARY,SUCCESS_ROW,HOVER_ROW,BACKGROUND,OPACITY){
+        $http({
+            url: "changeStyleSheet/",
+            method: 'POST',
+            data: {'PRIMARY':PRIMARY,
+                    'PRIMARY_LIGHT':PRIMARY_LIGHT,
+                    'SECONDARY':SECONDARY,
+                    'SUCCESS_ROW':SUCCESS_ROW,
+                    'HOVER_ROW':HOVER_ROW,
+                    'BACKGROUND':BACKGROUND,
+                    'OPACITY':OPACITY,
+                    'ERROR_ROW':"ff6666"}
+        }).then(function success(response) {
+            var newStyle = response.data['newStylesheet'];
+            $scope.dynamicStylesheet = newStyle;
+            //$window.location.reload();
+        }, function error(response){
+            alert('you mustve fucked up, did you enter a color for each??')
+        });
+    };
+
+    $scope.saveStyle = function(){
+        $http({
+            url: "saveStyle/",
+            method: 'POST',
+            data: {'filename':$scope.dynamicStylesheet}
+        }).then(function success(response){
+            console.log("success");
+        },function error(response){
+            console.log("failed");
+        })
+    }
+})
 
 app.controller('spotifyCtrl', function($scope, $http, ytService) {
     var init = function() {

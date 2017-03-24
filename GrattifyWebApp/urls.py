@@ -12,5 +12,7 @@ urlpatterns = [
     url(r'^callback/',views.callback, name = 'callback'),
     url(r'^zipTracks/',views.zipTracks, name = 'zipTracks'),
     url(r'^getYtlink/',views.getYtlink, name = 'getYtlink'),
+    url(r'^saveStyle/',views.saveStyle, name = 'saveStyle'),
+    url(r'^changeStyleSheet/',views.changeStyleSheet, name = 'changeStyleSheet'),
     url(r'^downloadSingleTrack/',views.downloadSingleTrack, name = 'downloadSingleTrack')
 ]

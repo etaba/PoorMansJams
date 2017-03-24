@@ -3,6 +3,8 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpRespons
 from django.urls import reverse
 from spotipy import oauth2
 import os, zipfile, json, grattify, spotipy
+import shutil
+from random import randint
 
 def index(request):
 	if not os.path.exists('tmp/'+request.session.session_key):
@@ -92,6 +94,27 @@ def getAlbumTracks(request):
 	tracks.reverse()
 	response_data = {'tracks':tracks}
 	return HttpResponse(json.dumps(response_data),content_type="application/json")
+
+def changeStyleSheet(request):
+	print os.getcwd();
+	customStylesheet = "GrattifyWebApp/static/customSheets/styles_"+str(randint(0,99999))+".css"
+	newCss = open(customStylesheet,'w+')
+	templateCss = open("GrattifyWebApp/static/customSheets/stylesheetTemplate.css",'r')
+	for line in templateCss.readlines():
+		firstDelim = line.find('%')
+		if firstDelim != -1:
+			secondDelim = line.find('%',firstDelim+1)
+			token = line[firstDelim+1:secondDelim]
+			newCss.write(line[0:firstDelim] + request.POST[token] + line[secondDelim+1:])
+		else:
+			newCss.write(line)
+	newCss.close()
+	templateCss.close()
+	return HttpResponse(json.dumps({'newStylesheet': customStylesheet[14:]}),content_type="application/json")
+
+def saveStyle(request):
+	shutil.copy("GrattifyWebApp"+ request.POST['filename'], "GrattifyWebApp/savedSheets/" + request.POST['filename'][-10:])
+	return HttpResponse()
 
 
 

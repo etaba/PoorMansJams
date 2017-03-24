@@ -1,0 +1,108 @@
+/*Header Row/Title/Add Button: %PRIMARY%
+  Track Row/Input Fields/Button Background: %SECONDARY%
+  Playlist/Downloading Row: %PRIMARY_LIGHT%
+  Complete Row: %SUCCESS_ROW%
+  Error Row: %ERROR_ROW%
+  Background: %BACKGROUND%
+  Hover Row: %HOVER_ROW%;
+  Opacity: %OPACITY%;
+*/
+label{
+  background-color:white;
+  color:black;
+}
+p{
+  background-color:white;
+  color:black;
+}
+div{
+  opacity: %OPACITY%;
+}
+input[type="text"]::-webkit-input-placeholder {
+    color: #%PRIMARY%;
+}
+body{
+  background-color: #%BACKGROUND%;
+}
+tr{
+  border: solid black;
+}
+input{
+  border: solid #%PRIMARY% 2px;
+  background-color: #%SECONDARY%;
+}
+.title{
+  color: #%PRIMARY%;
+}
+.primary-color{
+  color:#%PRIMARY%;
+}
+.secondary-color{
+  color: #%SECONDARY%;
+}
+.playlist-row{
+  background-color:#%PRIMARY_LIGHT%;
+}
+.header-row{
+  background-color:#%PRIMARY%;
+}
+.complete-row{
+  background-color:#%SUCCESS_ROW%;
+}
+.error-row{
+  background-color:#%ERROR_ROW%;
+}
+.downloading-row{
+  background-color:#%PRIMARY_LIGHT%;
+}
+.default-row{
+  background-color:#%SECONDARY%;
+}
+.hovering-row{
+  background-color:#%HOVER_ROW%;
+}
+.button{
+  background-color: #%SECONDARY%;
+  color: #%PRIMARY%;
+}
+.background-color{
+  background-color:#%BACKGROUND%;
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+.add-button {
+  background-color:#%PRIMARY%;
+}
+
+.gratify-button {
+  -webkit-border-radius: 6;
+  -moz-border-radius: 6;
+  border-radius: 6px;
+  font-family: Arial;
+  color: #%PRIMARY%;
+  font-size: 17px;
+  background: #%SECONDARY%;
+  padding: 6px 20px 10px 20px;
+  border: solid #%PRIMARY% 2px;
+  text-decoration: none;
+}
+
+.gratify-button:hover {
+  background: #%PRIMARY%;
+  border: solid #%SECONDARY% 2px;
+  color: #%SECONDARY%;
+  text-decoration: none;
+}

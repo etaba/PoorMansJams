@@ -4,18 +4,9 @@
   Complete Row: 96ff66
   Error Row: ff6666
   Background: 000000
-  Hover Row: efccff;
 */
 div{
-  opacity: 1;
-}
-label{
-  background-color:white;
-  color:black;
-}
-p{
-  background-color:white;
-  color:black;
+  opacity: 0.75;
 }
 input[type="text"]::-webkit-input-placeholder {
     color: #cf66ff;

@@ -1,168 +1,182 @@
 <!DOCTYPE html>
 {% load static %}
-<head>
-	<title>Grand Theft Audio</title>
-	<a style="display:none" id="y2mp3Link" href="#" data-href="https://www.youtube.com/watch?v=KMU0tzLwhbE" rel="nofollow" class="y2m">Developers1</a>
-	<iframe src="https://www.youtube2mp3.cc/button-api/?#YOUTUBE_VIDEO_ID|FORMAT" width="128" height="32" scrolling="no" style="border:none";></iframe>
-	<a href="http://convert2mp3.net/share.php?url=https://www.youtube.com/watch?v=RYMH3qrHFEM" rel="nofollow" download="test.mp3">convert2Test</a>
-	<center><h1><font color="#cf66ff">Grand Theft Audio</font></h1><center>
-	<meta charset="utf-8">
-  	<meta name="viewport" content="width=device-width, initial-scale=1">
-  	<!-- Latest AngularJS -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<!-- jQuery library -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<!-- Latest compiled JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<!-- Angular Routes -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
-	<script type="text/javascript" src="https://www.youtube2mp3.cc/js/api.js"></script>
-	<!--Angular Bootstrap UI-->
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
-	<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
-	<link rel="stylesheet" href="{% static "styles.css" %}"></link>
-	<script src="{% static "script.js" %}"></script>
-	<!-- Google API -->
-	<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
-	
+<html  ng-app="myApp" ng-controller="headCtrl">
+	<head >
+		<meta charset="utf-8">
+	  	<meta name="viewport" content="width=device-width, initial-scale=1">
+	  	<!-- Latest AngularJS -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<!--Angular Bootstrap UI-->
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+	    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+		<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
+		<!--<link rel="stylesheet" href="{% static "styles.css" %}"></link>-->
+		{%verbatim%}<link rel="stylesheet" ng-href="{{dynamicStylesheet}}"></link>{%endverbatim%}
+		<script src="{% static "script.js" %}"></script>
+		<!-- Google API -->
+		<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
+		<!-- Y2M API -->
+		<script type="text/javascript" src="https://ytapi.cc/js/link.js"></script>
+		
+		{%verbatim%}<p ng-click="debugMode = !debugMode">Debugging: {{debugMode ? "ON" : "OFF"}}</p>{%endverbatim%}
+		<label ng-show="debugMode" for="PRIMARY">Primary</label>
+		<input ng-show="debugMode" value=="PRIMARY" 		onclick="this.select()" type="text" ng-model="PRIMARY" 		placeholder="PRIMARY"></input>
+		<label ng-show="debugMode" for="PRIMARY_LIGHT">Subheader/downloading row</label>
+		<input ng-show="debugMode" value=="PRIMARY_LIGHT" onclick="this.select()" type="text" ng-model="PRIMARY_LIGHT" placeholder="PRIMARY_LIGHT"></input>
+		<label ng-show="debugMode" for="SECONDARY">Secondary</label>
+		<input ng-show="debugMode" value=="SECONDARY" 	onclick="this.select()" type="text" ng-model="SECONDARY" 	placeholder="SECONDARY"></input>
+		<label ng-show="debugMode" for="SUCCESS_ROW">Row download complete</label>
+		<input ng-show="debugMode" value=="SUCCESS_ROW" 	onclick="this.select()" type="text" ng-model="SUCCESS_ROW" 	placeholder="SUCCESS_ROW"></input>
+		<label ng-show="debugMode" for="HOVER_ROW">Hovering on row</label>
+		<input ng-show="debugMode" value=="HOVER_ROW" 	onclick="this.select()" type="text" ng-model="HOVER_ROW" 	placeholder="HOVER_ROW"></input>
+		<label ng-show="debugMode" for="BACKGROUND">Background</label>
+		<input ng-show="debugMode" value=="BACKGROUND" 	onclick="this.select()" type="text" ng-model="BACKGROUND" 	placeholder="BACKGROUND"></input>
+		<label ng-show="debugMode" for="OPACITY">Opacity (0 to 1)</label>
+		<input ng-show="debugMode" value=="OPACITY" 		onclick="this.select()" type="text" ng-model="OPACITY" 		placeholder="OPACITY" ></input>
+		<button ng-show="debugMode"ng-click="changeStyle(PRIMARY,PRIMARY_LIGHT,SECONDARY,SUCCESS_ROW,HOVER_ROW,BACKGROUND,OPACITY)">SUBMIT CHANGES</button>
+		<button ng-show="debugMode"ng-click="saveStyle()">SAVE STYLE</button>
+	</head>
+	<body>
+		<div  ng-controller="indexCtrl" class="container-fluid">
+		<center>
 
-	
-</head>
-<body ng-app="myApp">
-	<div  ng-controller="indexCtrl" class="container-fluid">
-	<center>
-
-	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-	{% csrf_token %}
-	<br>
-	<br>
-	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="track"/><font color="#ffe680">Track</font>
-	<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="album"/><font color="#ffe680">Album</font>
-	<input type="text" ng-model="entry.artist" placeholder="Artist" uib-typeahead="address for address in getArtists($viewValue)" typeahead-loading="loadingLocations" typeahead-no-results="noResults" id="artist_input">
-    <input type="text" ng-model="entry.title" placeholder="Track or Album Title" ng-keypress="onKeyPress($event,entry)" uib-typeahead="address for address in getTrackOrAlbums($viewValue)" typeahead-loading="loadingLocations" typeahead-no-results="noResults" >
-    <i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
-    <div ng-show="noResults">
-      <i class="glyphicon glyphicon-remove"></i> No Results Found
-    </div>
-    <!--
-	<input type="text"  ng-model="entry.artist" placeholder="Artist" ng-keypress="onKeyPress($event,entry)" id="artist_input"/>
-	<input type="text"  ng-model="entry.title"  placeholder="Track or Album Title" ng-keypress="onKeyPress($event,entry)"/>
-	-->
-	<input type="text"  ng-model="entry.ytlink" placeholder="Youtube Link (optional)" ng-keypress="onKeyPress($event,entry)"/>
-    
-	<button ng-click="processEntry(entry)" class="btn" style="background-color:#cf66ff">
-		<span class="glyphicon glyphicon-plus" style="color:#ffe680"></span>
-	</button>
-	<br>
-	<div ng-show="selectedPlaylists.length == 0">
+		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+		{% csrf_token %}
+		<title>Grand Theft Audio</title>
+		<a style="display:none" id="y2mp3Link" href="#" data-href="https://www.youtube.com/watch?v=KMU0tzLwhbE" rel="nofollow" class="y2m"></a>
+		<center><h1><font class="title">Grand Theft Audio</font></h1><center>
 		<br>
-		<font color="#cf66ff">OR</font>
 		<br>
-	</div>
-	<br>
-	<button ng-click="loginSpotify()" class="gratify-button">Import Spotify</button>
-	<button   ng-click="download(selectedPlaylists)" 
-			  ng-show="selectedPlaylists.length > 0"
-			  class="gratify-button">Download All</button>
-	{% verbatim %}
+		<div>
+			<div>
+				<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="track"/><font class="secondary-color">Track</font>
+			</div>
+			<div>
+				<input type="radio" ng-model="entry.entryType" ng-keypress="onKeyPress($event,entry)" value="album"/><font class="secondary-color">Album</font>
+			</div>
+		</div>
+		<div >
+			<input type="text" ng-model="entry.artist" placeholder="Artist" uib-typeahead="address for address in getArtists($viewValue)" typeahead-loading="loadingLocations" typeahead-no-results="noResults" id="artist_input">
+		    <input type="text" ng-model="entry.title" placeholder="Track or Album Title" ng-keypress="onKeyPress($event,entry)" uib-typeahead="address for address in getTrackOrAlbums($viewValue)" typeahead-loading="loadingLocations" typeahead-no-results="noResults" >
+		    <i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+		    <div ng-show="noResults">
+		      <i class="glyphicon glyphicon-remove"></i> No Results Found
+		    </div>
+			<input type="text"  ng-model="entry.ytlink" placeholder="Youtube Link (optional)" ng-keypress="onKeyPress($event,entry)"/>
+		    
+			<button ng-click="processEntry(entry)" class="btn add-button" >
+				<span class="glyphicon glyphicon-plus" class="secondary-color"></span>
+			</button>
+		</div>
 		<br>
-		<div class="container" ng-show="selectedPlaylists.length > 0" >
-		<table class="table table-striped">
-			<thead >
-				<tr style="background-color:#cf66ff">
-					<th style="width:4%"></th>
-					<th style="width:32%"><h4>Artist</h4></th>
-					<th style="width:32%"><h4>Track</h4></th>
-					<th style="width:32%"><h4>YouTube</h4></th>
-				</tr>
-			</thead>
-			<tbody ng-repeat="p in selectedPlaylists">
-				<tr ng-if="selectedPlaylists.length > 1 && p.tracks.length > 0" 
-					ng-mouseover="modifyPlaylist=true;" 
-					ng-mouseleave="modifyPlaylist=false;" 
-					style="background-color:#efccff">
-					<td >
-						<button ng-show="modifyPlaylist" ng-click="deletePlaylist(p.id)" class="btn btn-danger btn-xs" title="Remove Playlist">
-							<span class="glyphicon glyphicon-remove"></span>
-						</button>
-					</td>
-					<td align="center" colspan="3"><h5>{{ p.name }}</h5></td>
-				</tr>
-				<tr ng-repeat="t in p.tracks" 
-					ng-mouseover="hovering=true;" 
-					ng-mouseleave="hovering=false;"
-					ng-click="modifyRow=true;"
-					ng-style="getRowStyle(t.status, hovering)">
-					<td>
-						<button ng-show="hovering && !modifyRow" ng-click="deletePlaylistRow(p.id,$index)" class="btn btn-danger btn-xs" title="Remove">
-							<span class="glyphicon glyphicon-remove"></span>
-						</button>
-						<button ng-show="modifyRow" ng-click="modifyRow=false;$event.stopPropagation();" class="btn btn-success btn-xs" title="Done">
-							<span class="glyphicon glyphicon-ok"></span>
-						</button>
-					</td>
-					<td ng-click="editPlaylistRow(p.id,$index)">
-						<span ng-show="!modifyRow">{{ t.artist }}</span>
-						<input type="text" 
-							   ng-model="t.artist" 
-							   ng-show="modifyRow" 
-							   class="yellow-input"
-							   onclick="this.select()"></input>
-					</td>
-					<td ng-click="editPlaylistRow(p.id,$index)">
-						<span ng-show="!modifyRow">{{ t.title }}</span>
-						<input type="text" 
-							   ng-model="t.title" 
-							   ng-show="modifyRow" 
-							   class="yellow-input"
-							   onclick="this.select()"></input>
-					</td>
-					<td ng-click="editPlaylistRow(p.id,$index)">
-						<a ng-show="!modifyRow" target="_blank" href="{{ t.ytlink }}">{{ t.ytlink }}</a>
-						<input type="text" 
-							   ng-model="t.ytlink" 
-							   ng-show="modifyRow || !t.ytlink" 
-							   placeholder="Link Needed" 
-							   class="yellow-input"
-							   onclick="this.select()"
-							   ng-change="removeLinkError(t)"></input>
-						<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"
-							  style="color:#efccff"
-							  ng-show="t.ytlink=='Smart Search...'"></span>
-					</td>
-					<td ng-if="t.status=='ERROR'"
-						style="background-color:#000000"
-						ng-mouseleave="showError = false"
-						ng-mouseover="showError = true">
-							<span ng-show="!showError"
-								  class="glyphicon glyphicon-exclamation-sign" 
-								  title="{{t.err}}"
-								  style="color:red">
+		<div ng-show="selectedPlaylists.length == 0">
+			<br>
+			<font class="primary-color"> OR</font>
+			<br>
+		</div>
+		<br>
+		<button ng-click="loginSpotify()" class="gratify-button">Import Spotify</button>
+		<button   ng-click="downloadTracksFrontEnd(selectedPlaylists,0,0)" 
+				  ng-show="selectedPlaylists.length > 0"
+				  class="gratify-button">Download All</button>
+		{% verbatim %}
+			<br>
+			<div class="container" ng-show="selectedPlaylists.length > 0" >
+			<table class="table">
+				<thead >
+					<tr class="header-row">
+						<th style="width:4%"></th>
+						<th style="width:32%"><h4>Artist</h4></th>
+						<th style="width:32%"><h4>Track</h4></th>
+						<th style="width:32%"><h4>YouTube</h4></th>
+					</tr>
+				</thead>
+				<tbody ng-repeat="p in selectedPlaylists">
+					<tr ng-if="selectedPlaylists.length > 1 && p.tracks.length > 0" 
+						ng-mouseover="modifyPlaylist=true;" 
+						ng-mouseleave="modifyPlaylist=false;"
+						class="playlist-row" >
+						<td >
+							<button ng-show="modifyPlaylist" ng-click="deletePlaylist(p.id)" class="btn btn-danger btn-xs" title="Remove Playlist">
+								<span class="glyphicon glyphicon-remove"></span>
+							</button>
+						</td>
+						<td align="center" colspan="3"><h5>{{ p.name }}</h5></td>
+					</tr>
+					<tr ng-repeat="t in p.tracks" 
+						ng-mouseover="hovering=true;" 
+						ng-mouseleave="hovering=false;"
+						ng-click="modifyRow=true;"
+						ng-class="getRowClass(t.status,hovering)">
+						<td>
+							<button ng-show="hovering && !modifyRow" ng-click="deletePlaylistRow(p.id,$index)" class="btn btn-danger btn-xs" title="Remove">
+								<span class="glyphicon glyphicon-remove"></span>
+							</button>
+							<button ng-show="modifyRow" ng-click="modifyRow=false;$event.stopPropagation();" class="btn btn-success btn-xs" title="Done">
+								<span class="glyphicon glyphicon-ok"></span>
+							</button>
+						</td>
+						<td ng-click="editPlaylistRow(p.id,$index)">
+							<span ng-show="!modifyRow">{{ t.artist }}</span>
+							<input type="text" 
+								   ng-model="t.artist" 
+								   ng-show="modifyRow" 
+								   onclick="this.select()"></input>
+						</td>
+						<td ng-click="editPlaylistRow(p.id,$index)">
+							<span ng-show="!modifyRow">{{ t.title }}</span>
+							<input type="text" 
+								   ng-model="t.title" 
+								   ng-show="modifyRow" 
+								   onclick="this.select()"></input>
+						</td>
+						<td ng-click="editPlaylistRow(p.id,$index)">
+							<a ng-show="!modifyRow" target="_blank" href="{{ t.ytlink }}">{{ t.ytlink }}</a>
+							<input type="text" 
+								   ng-model="t.ytlink" 
+								   ng-show="modifyRow || !t.ytlink" 
+								   placeholder="Link Needed" 
+								   onclick="this.select()"
+								   ng-change="removeLinkError(t)"></input>
+							<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate primary-color"
+								  ng-show="t.ytlink=='Smart Search...'"></span>
+						</td>
+						<td ng-if="t.status=='ERROR'"
+							class="background-color"
+							ng-mouseleave="showError = false"
+							ng-mouseover="showError = true">
+								<span ng-show="!showError"
+									  class="glyphicon glyphicon-exclamation-sign" 
+									  title="{{t.err}}"
+									  style="color:red">
+								</span>
+								<button ng-show="t.err=='Download failed.' && showError" 
+										class="btn btn-danger"
+										ng-click="downloadSingleTrack(t)">{{ t.err }} Click to try again</button>
+								<span ng-show="t.err!='Download failed.' && showError"><font color="red">{{ t.err }}</font></span>
+						</td>
+						<td ng-if="t.status=='DOWNLOADING'"
+							class="background-color">
+							<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate primary-color"></span>
+						</td>
+						<td ng-if="t.status=='COMPLETE'"
+							class="background-color">
+							<span class="glyphicon glyphicon-ok"
+								  style="color:green">
 							</span>
-							<button ng-show="t.err=='Download failed.' && showError" 
-									class="btn btn-danger"
-									ng-click="downloadSingleTrack(t)">{{ t.err }} Click to try again</button>
-							<span ng-show="t.err!='Download failed.' && showError"><font color="red">{{ t.err }}</font></span>
-					</td>
-					<td ng-if="t.status=='DOWNLOADING'"
-						style="background-color:#000000">
-						<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"
-							  style="color:#efccff"></span>
-					</td>
-					<td ng-if="t.status=='COMPLETE'"
-						style="background-color:#000000">
-						<span class="glyphicon glyphicon-ok"
-							  style="color:green">
-						</span>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	{% endverbatim %}
-	</center>
-	</div>
-</body>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		{% endverbatim %}
+		</center>
+		</div>
+	</body>
+</html>
