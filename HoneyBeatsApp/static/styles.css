@@ -1,0 +1,107 @@
+/*Header Row/Title/Add Button: cf66ff
+  Track Row/Input Fields/Button Background: ffe866
+  Playlist/Downloading Row: efccff
+  Complete Row: 96ff66
+  Error Row: ff6666
+  Background: 000000
+  Hover Row: efccff;
+*/
+div{
+  opacity: 1;
+}
+label{
+  background-color:white;
+  color:black;
+}
+p{
+  background-color:white;
+  color:black;
+}
+input[type="text"]::-webkit-input-placeholder {
+    color: #cf66ff;
+}
+body{
+  background-color: #000000;
+}
+tr{
+  border: solid black;
+}
+input{
+  border: solid #cf66ff 2px;
+  background-color: #ffe866;
+}
+.title{
+  color: #cf66ff;
+}
+.primary-color{
+  color:#cf66ff;
+}
+.secondary-color{
+  color: #ffe866;
+}
+.playlist-row{
+  background-color:#efccff;
+}
+.header-row{
+  background-color:#cf66ff;
+}
+.complete-row{
+  background-color:#96ff66;
+}
+.error-row{
+  background-color:#ff6666;
+}
+.downloading-row{
+  background-color:#efccff;
+}
+.default-row{
+  background-color:#ffe866;
+}
+.hovering-row{
+  background-color:#efccff;
+}
+.button{
+  background-color: #ffe866;
+  color: #cf66ff;
+}
+.background-color{
+  background-color:#000000;
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+.add-button {
+  background-color:#cf66ff;
+}
+
+.honeybeats-button {
+  -webkit-border-radius: 6;
+  -moz-border-radius: 6;
+  border-radius: 6px;
+  font-family: Arial;
+  color: #cf66ff;
+  font-size: 17px;
+  background: #ffe866;
+  padding: 6px 20px 10px 20px;
+  border: solid #cf66ff 2px;
+  text-decoration: none;
+}
+
+.honeybeats-button:hover {
+  background: #cf66ff;
+  border: solid #ffe866 2px;
+  color: #ffe866;
+  text-decoration: none;
+}
