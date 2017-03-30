@@ -25,7 +25,7 @@ SECRET_KEY = 'w!^i9iv+-=iwsh^vv+ejtqdi=yo!q_v=ilq&m4i290+6l_*wx0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['www.poormansjams.com']
 
 
 # Application definition
