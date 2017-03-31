@@ -1,7 +1,7 @@
 # Temporary Stuff #
 ###################
-PoorMansJams/static/customSheets/*
-PoorMansJams/savedSheets/*
+PoorMansJamsApp/static/customSheets/*
+PoorMansJamsApp/savedSheets/*
 
 # Compiled source #
 ###################

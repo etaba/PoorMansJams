@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ['www.poormansjams.com']
 # Application definition
 
 INSTALLED_APPS = [
-    BASE_DIR + '/PoorMansJamsApp.apps.PoorMansJamsAppConfig',
+    'PoorMansJamsApp.apps.PoorMansJamsAppConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -138,6 +138,4 @@ USE_TZ = True
 STATIC_ROOT = os.path.dirname(BASE_DIR) + '/public/static/'
 STATIC_URL = '/static/'
 
-# Override production variables if DJANGO_DEVELOPMENT env variable is set
-if os.environ.get('DJANGO_DEVELOPMENT') is not None:
-    from settings_dev import * 
+
