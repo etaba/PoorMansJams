@@ -163,7 +163,7 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
         }
         track = playlists[playlistIndex].tracks[trackIndex];
         track['status'] = 'DOWNLOADING';
-        ytService.downloadSingleTrackFrontEnd(track);
+        //ytService.downloadSingleTrackFrontEnd(track);
         $timeout(function(){
             track['status'] = 'COMPLETE';
             $scope.downloadTracksFrontEnd(playlists,playlistIndex,++trackIndex);
@@ -541,7 +541,10 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
 
     $scope.loginSpotify = function(){
         var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
-        var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
+        //for development server:
+        //var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
+        //for production server:
+        var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
         var spotifyScope = "playlist-read-private user-library-read"
         var spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?"+"client_id="+SPOTIPY_CLIENT_ID+"&redirect_uri="+SPOTIPY_REDIRECT_URI+"&scope="+spotifyScope+"&response_type=token&state=123";
         //window.location.href = spotifyAuthEndpoint;

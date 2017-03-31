@@ -69,13 +69,10 @@ def serveZip(request):
 def getYtlink(request):
 	artist = request.POST['artist'] if "artist" in request.POST else ""
 	title =  request.POST['title'] if "title" in request.POST else ""
-	print "gonna get that link"
 	nthBest = grattify.findNthBestLink(1,artist,title);
 	if not nthBest:
 		return HttpResponseServerError("No Youtube search results")
 	else:
-		print "link on the way:",nthBest['link']
-
 		response_data = {'link': nthBest['link']}
 		return HttpResponse(json.dumps(response_data),content_type="application/json")
 
