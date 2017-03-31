@@ -25,13 +25,13 @@ SECRET_KEY = 'w!^i9iv+-=iwsh^vv+ejtqdi=yo!q_v=ilq&m4i290+6l_*wx0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.poormansjams.com']
+ALLOWED_HOSTS = ['www.poormansjams.com','localhost']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    BASE_DIR + '/PoorMansJamsApp.apps.PoorMansJamsAppConfig',
+    'PoorMansJamsApp.apps.PoorMansJamsAppConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -140,4 +140,4 @@ STATIC_URL = '/static/'
 
 # Override production variables if DJANGO_DEVELOPMENT env variable is set
 if os.environ.get('DJANGO_DEVELOPMENT') is not None:
-    from settings_dev import * 
+	from settings_dev import *

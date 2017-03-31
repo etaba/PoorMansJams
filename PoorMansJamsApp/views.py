@@ -97,10 +97,13 @@ def getAlbumTracks(request):
 	return HttpResponse(json.dumps(response_data),content_type="application/json")
 
 def changeStyleSheet(request):
-	print os.getcwd();
-	customStylesheet = "PoorMansJamsApp/static/customSheets/styles_"+str(randint(0,99999))+".css"
-	newCss = open(customStylesheet,'w+')
-	templateCss = open("PoorMansJamsApp/static/customSheets/stylesheetTemplate.css",'r')
+	if os.environ.get('DJANGO_DEVELOPMENT') is not None:
+		staticRoot = "PoorMansJamsApp/"
+	else:
+		staticRoot = "public/"
+	newSheet = "static/customSheets/styles_"+str(randint(10000,99999))+".css"
+	newCss = open(staticRoot + newSheet,'w+')
+	templateCss = open(staticRoot + "static/customSheets/stylesheetTemplate.css",'r')
 	for line in templateCss.readlines():
 		firstDelim = line.find('%')
 		if firstDelim != -1:
@@ -111,10 +114,14 @@ def changeStyleSheet(request):
 			newCss.write(line)
 	newCss.close()
 	templateCss.close()
-	return HttpResponse(json.dumps({'newStylesheet': customStylesheet[14:]}),content_type="application/json")
+	return HttpResponse(json.dumps({'newStylesheet': newSheet}),content_type="application/json")
 
 def saveStyle(request):
-	shutil.copy("PoorMansJamsApp"+ request.POST['filename'], "PoorMansJamsApp/savedSheets/" + request.POST['filename'][-10:])
+	if os.environ.get('DJANGO_DEVELOPMENT') is not None:
+                staticRoot = "PoorMansJamsApp/"
+        else:
+                staticRoot = "public/"
+	shutil.copy(staticRoot+ request.POST['filename'], "PoorMansJams/PoorMansJamsApp/savedSheets/" + request.POST['filename'][-10:])
 	return HttpResponse()
 
 
