@@ -28,28 +28,34 @@ app.factory('ytService', ['$http','$q', function($http,$q){
     };
 
     service.downloadSingleTrackFrontEnd = function(track){
-        //ATTEMPT 1
+        //ATTEMPT 1 - works the first time, then same video downloaded for all subsequent tries
         //var a = document.getElementById('y2mp3Link');
         //a.attributes['data-href'].value = track.ytlink;
         //a.download = "testNAme.mp3";
         //a.click();
         //return;
 
-        //ATTEMPT 2
+        //ATTEMPT 2 - doesnt download anything
         //var placeholder = document.getElementById('y2m_placeholder');
         //var a = document.createElement('a');
         //a.href = "";
         //a.className = "y2m";
-        ////a.target="_blank"
-        //a.rel = "nofollow";
+        //a.target="_blank"
+        ////a.rel = "nofollow";
         ////a.attributes['data-href'] = {'value' : track.ytlink};
         //a.setAttribute('data-href',track.ytlink);
         //placeholder.appendChild(a);
         //a.click();
+        //return;
 
-        //ATTEMPT 3
+        //ATTEMPT 3 - angular approach, data binding doesnt update
+        //var a = document.getElementById('y2mp3Link3');
+        //a.click();
+        //return;
+
+        //ATTEMPT 4
         var placeholder = document.getElementById('y2m_placeholder');
-        placeholder.append('<a style="display:none" id="uniqueId" href="" target="_blank"  data-href="'+track.ytlink+'" class="y2m"></a>');
+        placeholder.innerHTML = '<a id="uniqueId" href="" target="_blank"  data-href="'+track.ytlink+'" class="y2m">DID THIS WORK</a>';
         $("#uniqueId").click();
         return;
     };
@@ -120,7 +126,8 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
         $scope.selectedPlaylists = [];
         $scope.entry = {};
         $scope.entry.entryType = "track";
-        console.log(googleApiReady);
+
+        $scope.ytlinkPlaceholder = "www.youtube.com"
     }
 
     $scope.removeLinkError = function(track){
@@ -162,8 +169,10 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
             }
         }
         track = playlists[playlistIndex].tracks[trackIndex];
+        $scope.ytlinkPlaceholder = "oogabooga";
+        //$scope.$apply();
         track['status'] = 'DOWNLOADING';
-        //ytService.downloadSingleTrackFrontEnd(track);
+        ytService.downloadSingleTrackFrontEnd(track);
         $timeout(function(){
             track['status'] = 'COMPLETE';
             $scope.downloadTracksFrontEnd(playlists,playlistIndex,++trackIndex);
@@ -248,20 +257,6 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
             });
         }, function error(response){
             alert('Failed to create zip for '+playlist['name']);
-        });
-    };
-
-    $scope.getLocation = function(val) {
-        return $http.get('//maps.googleapis.com/maps/api/geocode/json', {
-          params: {
-            address: val,
-            sensor: false
-          }
-        }).then(function(response){
-          locArray =  response.data.results.map(function(item){
-            return item.formatted_address;
-          });
-          return locArray;
         });
     };
 
@@ -542,9 +537,9 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
     $scope.loginSpotify = function(){
         var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
         //for development server:
-        //var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
+        var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
         //for production server:
-        var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
+        //var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
         var spotifyScope = "playlist-read-private user-library-read"
         var spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?"+"client_id="+SPOTIPY_CLIENT_ID+"&redirect_uri="+SPOTIPY_REDIRECT_URI+"&scope="+spotifyScope+"&response_type=token&state=123";
         //window.location.href = spotifyAuthEndpoint;

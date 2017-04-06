@@ -24,7 +24,7 @@
 		<!-- Y2M API -->
 		<script type="text/javascript" src="https://ytapi.cc/js/link.js"></script>
 		
-		{%verbatim%}<p ng-click="debugMode = !debugMode">Debugging: {{debugMode ? "ON" : "OFF"}}</p>{%endverbatim%}
+		{%verbatim%}<p ng-click="debugMode = !debugMode">Click to fiddle with color scheme: {{debugMode ? "ON" : "OFF"}}</p>{%endverbatim%}
 		<label ng-show="debugMode" for="PRIMARY">Primary</label>
 		<input ng-show="debugMode" value=="PRIMARY" 		onclick="this.select()" type="text" ng-model="PRIMARY" 		placeholder="PRIMARY"></input>
 		<label ng-show="debugMode" for="PRIMARY_LIGHT">Subheader/downloading row</label>
@@ -56,7 +56,20 @@
 		   href="" 
 		   target="_blank" 
 		   data-href="https://www.youtube.com/watch?v=KMU0tzLwhbE"
-		   class="y2m"></a>
+		   class="y2m">Download Anchor</a>
+		   {%verbatim%}
+		<a 
+		   id="y2mp3Link2" 
+		   href="" 
+		   target="_blank" 
+		   data-href="{{ ytlinkPlaceholder }}"
+		   class="y2m">{{ytlinkPlaceholder}}</a>
+
+		<a ng-href="{{ytlinkPlaceholder}}" 
+			target="_blank"
+			id="y2mp3Link3" 
+			class="y2m">Developers</a>
+		   {%endverbatim%}
 		<center><h1><font class="title">The Poor Man's Jams</font></h1><center>
 		<br>
 		<br>
