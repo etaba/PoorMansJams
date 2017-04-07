@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['POORMANSJAMS_SECRET_KEY']
+SECRET_KEY = os.environ.get('POORMANSJAMS_SECRET_KEY');
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ['www.poormansjams.com',
 
 INSTALLED_APPS = [
     'PoorMansJamsApp.apps.PoorMansJamsAppConfig',
-    'pipeline',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -137,25 +136,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
-STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'pipeline.finders.PipelineFinder',
-]
+
 STATIC_ROOT = os.path.dirname(BASE_DIR) + '/public/static/'
 STATIC_URL = '/static/'
 
-PIPELINE = {
-    'JAVASCRIPT': {
-        'script': {
-            'source_filenames': [
-                'script.js',
-            ],
-            'output_filename': 'script.js'
-        }
-    }
-}
 
 # Override production variables if DJANGO_DEVELOPMENT env variable is set
 if os.environ.get('DJANGO_DEVELOPMENT') is not None:
