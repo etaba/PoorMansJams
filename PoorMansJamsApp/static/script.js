@@ -27,13 +27,13 @@ app.factory('ytService', ['$http','$q', function($http,$q){
         return $http(payload);
     };
 
-    service.downloadSingleTrackFrontEnd = function(track){
+    service.downloadSingleTrackFrontEnd = function(track,i){
         //ATTEMPT 1 - works the first time, then same video downloaded for all subsequent tries
-        //var a = document.getElementById('y2mp3Link');
-        //a.attributes['data-href'].value = track.ytlink;
-        //a.download = "testNAme.mp3";
-        //a.click();
-        //return;
+        var a = document.getElementById('y2mp3Link_'+i.toString());
+        a.attributes['data-href'].value = track.ytlink;
+        a.download = "testNAme.mp3";
+        a.click();
+        return;
 
         //ATTEMPT 2 - doesnt download anything
         //var placeholder = document.getElementById('y2m_placeholder');
@@ -54,10 +54,10 @@ app.factory('ytService', ['$http','$q', function($http,$q){
         //return;
 
         //ATTEMPT 4
-        var placeholder = document.getElementById('y2m_placeholder');
-        placeholder.innerHTML = '<a id="uniqueId" href="" target="_blank"  data-href="'+track.ytlink+'" class="y2m">DID THIS WORK</a>';
-        $("#uniqueId").click();
-        return;
+        //var placeholder = document.getElementById('y2m_placeholder');
+        //placeholder.innerHTML = '<a id="uniqueId" href="" target="_blank"  data-href="'+track.ytlink+'" class="y2m">DID THIS WORK</a>';
+        //$("#uniqueId").click();
+        //return;
     };
 
     service.getYtLink = function(searchString){
@@ -156,7 +156,7 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
             });
     }
 
-    $scope.downloadTracksFrontEnd = function(playlists,playlistIndex,trackIndex){
+    $scope.downloadTracksFrontEnd = function(playlists,playlistIndex,trackIndex, i){
         //base case
         if(trackIndex >= playlists[playlistIndex]['tracks'].length){
             if(++playlistIndex >= playlists.length){
@@ -172,10 +172,10 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
         $scope.ytlinkPlaceholder = "oogabooga";
         //$scope.$apply();
         track['status'] = 'DOWNLOADING';
-        ytService.downloadSingleTrackFrontEnd(track);
+        ytService.downloadSingleTrackFrontEnd(track,i);
         $timeout(function(){
             track['status'] = 'COMPLETE';
-            $scope.downloadTracksFrontEnd(playlists,playlistIndex,++trackIndex);
+            $scope.downloadTracksFrontEnd(playlists,playlistIndex,++trackIndex,++i);
         },5000);
     }
 
@@ -537,9 +537,9 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
     $scope.loginSpotify = function(){
         var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
         //for development server:
-        var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
+        //var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
         //for production server:
-        //var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
+        var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
         var spotifyScope = "playlist-read-private user-library-read"
         var spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?"+"client_id="+SPOTIPY_CLIENT_ID+"&redirect_uri="+SPOTIPY_REDIRECT_URI+"&scope="+spotifyScope+"&response_type=token&state=123";
         //window.location.href = spotifyAuthEndpoint;
