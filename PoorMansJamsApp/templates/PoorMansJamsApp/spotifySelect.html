@@ -20,7 +20,9 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
 	<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
 	<!-- My script and css -->
-	<script src="{% static "script.js" %}"></script>
+	<!--<script src="{% static "script.js" %}"></script>-->
+	{% load pipeline %}
+	{% javascript 'scripts' %}
 	<link rel="stylesheet" href="{% static "styles.css" %}"></link>
 
 

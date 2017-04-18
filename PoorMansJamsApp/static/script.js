@@ -29,7 +29,12 @@ app.factory('ytService', ['$http','$q', function($http,$q){
 
     service.downloadSingleTrackFrontEnd = function(track,i){
         //ATTEMPT 1 - works the first time, then same video downloaded for all subsequent tries
-        var a = document.getElementById('y2mp3Link_'+i.toString());
+        //var a = document.getElementById('y2mp3Link_'+i.toString());
+        if (i >= 1000){
+            alert("Currently Poor Mans Jams only supports up to 1000 tracks a time. Please refresh the page now and reenter any remaining tracks not downloaded. Sorry soon we will support unlimited tracks.");
+        }
+        var placeholderLinks = document.getElementById('y2m_placeholder').getElementsByTagName('a');
+        var a = placeholderLinks[i];
         a.attributes['data-href'].value = track.ytlink;
         a.download = "testNAme.mp3";
         a.click();
@@ -119,12 +124,13 @@ app.factory('ytService', ['$http','$q', function($http,$q){
 }])
 
 
-//The Girl I Love She Got Long Black Wavy Hair - 22/6/69 Pop Sundae", artist: "Led Zeppelin
-app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $timeout, ytService) {
+app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
     var init = function(){
         document.getElementById("artist_input").focus();
         $scope.selectedPlaylists = [];
-        $scope.entry = {};
+        $scope.entry = {'artist':'',
+                        'title':'',
+                        'ytlink':''};
         $scope.entry.entryType = "track";
 
         $scope.ytlinkPlaceholder = "www.youtube.com"
@@ -437,7 +443,7 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
     
     $scope.addTrack = function(entry){
         var track = {'artist':entry.artist, 'title':entry.title, 'ytlink':entry.ytlink, 'entryType':entry.entryType};
-        if(track.artist === undefined && track.title == undefined && track.ytlink == undefined)
+        if(track.artist === "" && track.title == "" && track.ytlink == "")
         {
             document.getElementById("artist_input").focus();
             return;
@@ -461,7 +467,7 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
         }
         //Add tracks to PoorMansJams Playlist
         $scope.selectedPlaylists[0]['tracks'].unshift(track);
-        if(track.ytlink == undefined) //link not provided
+        if(track.ytlink == "") //link not provided
         {
             track.ytlink="Smart Search..."
             findNthBestLink(track,1).then(function(best){
@@ -476,10 +482,10 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
                     }
             });
         }
-        $scope.entry.artist = undefined;
-        $scope.entry.title = undefined;
-        $scope.entry.ytlink = undefined;
-        document.getElementById("artist_input").focus();
+        //$scope.entry.artist = undefined;
+        $scope.entry.title = "";
+        $scope.entry.ytlink = "";
+        document.getElementById("artist_input").select();
     }
 
     $scope.deletePlaylist = function(playlistID){
@@ -578,9 +584,9 @@ app.controller('indexCtrl', function($scope, $http, $location, $window, $q, $tim
 
     init();
 
-});
+}]);
 
-app.controller('headCtrl', function($scope,$http,$window){
+app.controller('headCtrl', ['$scope','$http','$window', function($scope,$http,$window){
     $scope.debugMode = false;
 
     $scope.dynamicStylesheet = "/static/styles.css"
@@ -608,7 +614,7 @@ app.controller('headCtrl', function($scope,$http,$window){
             $scope.dynamicStylesheet = newStyle;
             //$window.location.reload();
         }, function error(response){
-            alert('you mustve fucked up, did you enter a color for each??')
+            alert('something went wrong. did you enter a color for each??')
         });
     };
 
@@ -618,14 +624,15 @@ app.controller('headCtrl', function($scope,$http,$window){
             method: 'POST',
             data: {'filename':$scope.dynamicStylesheet}
         }).then(function success(response){
+            alert('success! eric will check out your submission. you can let him know its named: '+$scope.dynamicStylesheet);
             console.log("success");
         },function error(response){
             console.log("failed");
         })
     }
-})
+}])
 
-app.controller('spotifyCtrl', function($scope, $http, ytService) {
+app.controller('spotifyCtrl', ['$scope', '$http', 'ytService', function($scope, $http, ytService) {
     var init = function() {
         //grant = {'access_token','state','token_type','expires_in'}
         $scope.spotifyGrant = $scope.parseHash(String(window.location.hash));
@@ -731,4 +738,4 @@ app.controller('spotifyCtrl', function($scope, $http, ytService) {
     }
     init();
 
-});
+}]);

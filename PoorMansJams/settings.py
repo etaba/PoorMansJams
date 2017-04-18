@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['www.poormansjams.com',
 
 INSTALLED_APPS = [
     'PoorMansJamsApp.apps.PoorMansJamsAppConfig',
+    'pipeline', #django-pipeline for static file minification
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -133,10 +134,28 @@ USE_L10N = True
 
 USE_TZ = True
 
+PIPELINE = {
+    'JS_COMPRESSOR': 'pipeline.compressors.closure.ClosureCompressor',
+    'CLOSURE_BINARY': './closure',
+    'JAVASCRIPT': {
+        'scripts': {
+            'source_filenames': (
+              'auth.js',
+              'script.js',
+            ),
+            'output_filename': 'scripts.js',
+        }
+    }
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
-
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'pipeline.finders.PipelineFinder',
+)
 STATIC_ROOT = os.path.dirname(BASE_DIR) + '/public/static/'
 STATIC_URL = '/static/'
 

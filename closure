@@ -1,0 +1,2 @@
+#!/bin/bash
+java -jar "closure-compiler-v20170409.jar" $@

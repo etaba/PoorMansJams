@@ -115,10 +115,12 @@ def changeStyleSheet(request):
 
 def saveStyle(request):
 	if os.environ.get('DJANGO_DEVELOPMENT') is not None:
-                staticRoot = "PoorMansJamsApp/"
+                sourceRoot = "PoorMansJamsApp/"
+                destRoot =  "PoorMansJamsApp/savedSheets/"
         else:
-                staticRoot = "public/"
-	shutil.copy(staticRoot+ request.POST['filename'], "PoorMansJams/PoorMansJamsApp/savedSheets/" + request.POST['filename'][-10:])
+                sourceRoot = "public/"
+                destRoot = "PoorMansJams/PoorMansJamsApp/savedSheets/"
+	shutil.copy(sourceRoot+ request.POST['filename'], destRoot + request.POST['filename'][-10:])
 	return HttpResponse()
 
 
