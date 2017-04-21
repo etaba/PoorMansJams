@@ -15,6 +15,9 @@ def index(request):
 	#return render(request, 'PoorMansJamsApp/index.html',context)
 	return render(request,'PoorMansJamsApp/index.html');
 
+def termsOfService(request):
+	return render(request,'PoorMansJamsApp/termsOfService.html');
+
 def downloadSingleTrack(request):
 	saveDir = "songCache"
 	track = request.POST['track']

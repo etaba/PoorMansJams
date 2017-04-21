@@ -7,6 +7,7 @@ app_name = 'PoorMansJamsApp'
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^termsOfService',views.termsOfService, name='termsOfService'),
     url(r'^getAlbumTracks',views.getAlbumTracks, name = 'getAlbumTracks'),
     url(r'^serveZip',views.serveZip, name = 'serveZip'),
     url(r'^callback/',views.callback, name = 'callback'),

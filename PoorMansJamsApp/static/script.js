@@ -131,7 +131,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         $scope.entry = {'artist':'',
                         'title':'',
                         'ytlink':''};
-        $scope.entry.entryType = "track";
+        $scope.entry.entryType = "Track";
 
         $scope.ytlinkPlaceholder = "www.youtube.com"
     }
@@ -286,10 +286,10 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     }
 
     $scope.getTrackOrAlbums = function(val){
-        if($scope.entry.entryType == "track"){
+        if($scope.entry.entryType == "Track"){
             return $scope.getTracks(val);
         }
-        if($scope.entry.entryType == "album"){
+        if($scope.entry.entryType == "Album"){
             return $scope.getAlbums(val);
         }
     }
@@ -335,7 +335,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
     $scope.processEntry = function(entry){
         var entryCopy = {'artist':entry.artist, 'title':entry.title, 'ytlink':entry.ytlink, 'entryType':entry.entryType};
-        if(entryCopy.entryType == "album")
+        if(entryCopy.entryType == "Album")
         {
             //Application name    TabaTest
             var apiKey = "6b6c09f642b5cfb021742ab36859cdb3"
@@ -352,7 +352,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                 xmlResponse = parser.parseFromString(response.data,"text/xml");
                 tracks = xmlResponse.getElementsByTagName("track");
                 for(track of tracks){
-                    $scope.addTrack({'artist':entryCopy.artist,'title':track.getElementsByTagName('name')[0].innerHTML})
+                    $scope.addTrack({'artist':entryCopy.artist,'title':track.getElementsByTagName('name')[0].innerHTML, 'ytlink':""})
                 }
             }, function error(){
                 alert("Could not find that album :(");
@@ -727,7 +727,7 @@ app.controller('spotifyCtrl', ['$scope', '$http', 'ytService', function($scope, 
     	})
         localStorage.clear();
         localStorage.setItem('selectedPlaylists', JSON.stringify(selectedPlaylists));
-        window.close();
+        //window.close();
     };
 
     $scope.onKeyPress = function($event,entry) {
