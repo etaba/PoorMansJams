@@ -34,7 +34,6 @@ ALLOWED_HOSTS = ['www.poormansjams.com',
 INSTALLED_APPS = [
     'PoorMansJamsApp.apps.PoorMansJamsAppConfig',
     'pipeline', #django-pipeline for static file minification
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

@@ -2,6 +2,8 @@
 ###################
 PoorMansJamsApp/static/customSheets/styles_*
 PoorMansJamsApp/savedSheets/*
+#minified JS
+PoorMansJamsApp/static/styles*
 
 # Compiled source #
 ###################

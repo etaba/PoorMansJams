@@ -16,6 +16,7 @@
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
 	    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
 		<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
+		<script src="public/static/jscolor.min.js"></script>
 		{%verbatim%}<link rel="stylesheet" ng-href="{{dynamicStylesheet}}"></link>{%endverbatim%}
 		<!--<script src="{% static "script.js" %}"></script>-->
 		{% load pipeline %}
@@ -65,17 +66,17 @@
 		<br>
 		<br>
 		<label ng-show="debugMode" for="PRIMARY">Primary</label>
-		<input ng-show="debugMode" value=="PRIMARY" 		onclick="this.select()" type="text" ng-model="PRIMARY" 		placeholder="PRIMARY"></input>
+		<input ng-show="debugMode" class="jscolor" value=="PRIMARY" 		onclick="this.select()" type="text" ng-model="PRIMARY" 		placeholder="PRIMARY"></input>
 		<label ng-show="debugMode" for="PRIMARY_LIGHT">Subheader/downloading row</label>
-		<input ng-show="debugMode" value=="PRIMARY_LIGHT" onclick="this.select()" type="text" ng-model="PRIMARY_LIGHT" placeholder="PRIMARY_LIGHT"></input>
+		<input ng-show="debugMode" class="jscolor" value=="PRIMARY_LIGHT" onclick="this.select()" type="text" ng-model="PRIMARY_LIGHT" placeholder="PRIMARY_LIGHT"></input>
 		<label ng-show="debugMode" for="SECONDARY">Secondary</label>
-		<input ng-show="debugMode" value=="SECONDARY" 	onclick="this.select()" type="text" ng-model="SECONDARY" 	placeholder="SECONDARY"></input>
+		<input ng-show="debugMode" class="jscolor" value=="SECONDARY" 	onclick="this.select()" type="text" ng-model="SECONDARY" 	placeholder="SECONDARY"></input>
 		<label ng-show="debugMode" for="SUCCESS_ROW">Row download complete</label>
-		<input ng-show="debugMode" value=="SUCCESS_ROW" 	onclick="this.select()" type="text" ng-model="SUCCESS_ROW" 	placeholder="SUCCESS_ROW"></input>
+		<input ng-show="debugMode" class="jscolor" value=="SUCCESS_ROW" 	onclick="this.select()" type="text" ng-model="SUCCESS_ROW" 	placeholder="SUCCESS_ROW"></input>
 		<label ng-show="debugMode" for="HOVER_ROW">Hovering on row</label>
-		<input ng-show="debugMode" value=="HOVER_ROW" 	onclick="this.select()" type="text" ng-model="HOVER_ROW" 	placeholder="HOVER_ROW"></input>
+		<input ng-show="debugMode" class="jscolor" value=="HOVER_ROW" 	onclick="this.select()" type="text" ng-model="HOVER_ROW" 	placeholder="HOVER_ROW"></input>
 		<label ng-show="debugMode" for="BACKGROUND">Background</label>
-		<input ng-show="debugMode" value=="BACKGROUND" 	onclick="this.select()" type="text" ng-model="BACKGROUND" 	placeholder="BACKGROUND"></input>
+		<input ng-show="debugMode" class="jscolor" value=="BACKGROUND" 	onclick="this.select()" type="text" ng-model="BACKGROUND" 	placeholder="BACKGROUND"></input>
 		<label ng-show="debugMode" for="OPACITY">Opacity (0 to 1)</label>
 		<input ng-show="debugMode" value=="OPACITY" 		onclick="this.select()" type="text" ng-model="OPACITY" 		placeholder="OPACITY" ></input>
 		<button ng-show="debugMode"ng-click="changeStyle(PRIMARY,PRIMARY_LIGHT,SECONDARY,SUCCESS_ROW,HOVER_ROW,BACKGROUND,OPACITY)">SUBMIT CHANGES</button>
