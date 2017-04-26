@@ -8,12 +8,12 @@
   Opacity: %OPACITY%;
 */
 label{
-  background-color:white;
-  color:black;
+  background-color:black;
+  color:white;
 }
 p{
-  background-color:white;
-  color:black;
+  background-color:black;
+  color:#cf66ff;
 }
 div{
   opacity: %OPACITY%;

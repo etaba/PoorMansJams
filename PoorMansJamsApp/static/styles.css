@@ -10,12 +10,12 @@ div{
   opacity: 1;
 }
 label{
-  background-color:white;
-  color:black;
+  background-color:black;
+  color:white;
 }
 p{
-  background-color:white;
-  color:black;
+  background-color:black;
+  color:#cf66ff;
 }
 input[type="text"]::-webkit-input-placeholder {
     color: #cf66ff;

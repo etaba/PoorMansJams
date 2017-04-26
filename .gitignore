@@ -2,8 +2,19 @@
 ###################
 PoorMansJamsApp/static/customSheets/styles_*
 PoorMansJamsApp/savedSheets/*
+oldBackendDownloadCode.js
 #minified JS
 PoorMansJamsApp/static/styles*
+#cache busted js
+PoorMansJamsApp/static/jscolor.min.*.js
+PoorMansJamsApp/static/scripts.*
+PoorMansJamsApp/static/styles.*.css
+PoorMansJamsApp/static/script.*.js
+PoorMansJamsApp/static/auth.*.js
+PoorMansJamsApp/static/styleSheetTemplate.*.css
+
+
+
 
 # Compiled source #
 ###################
