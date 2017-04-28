@@ -408,9 +408,9 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     $scope.loginSpotify = function() {
         var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
         //for development server:
-        var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
+        //var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
         //for production server:
-        //var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
+        var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
         var spotifyScope = "playlist-read-private user-library-read"
         var spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?" + "client_id=" + SPOTIPY_CLIENT_ID + "&redirect_uri=" + SPOTIPY_REDIRECT_URI + "&scope=" + spotifyScope + "&response_type=token&state=123";
         $window.open(spotifyAuthEndpoint, 'callBackWindow', 'height=500,width=400');
