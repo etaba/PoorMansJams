@@ -1039,7 +1039,7 @@
 				</button>
 			</div>
 			<br>
-			
+
 			<div ng-show="selectedPlaylists.length == 0">
 				<br>
 				<font class="primary-color"> OR</font>
@@ -1096,22 +1096,22 @@
 								<span class="glyphicon glyphicon-ok"></span>
 								</button>
 							</td>
-							<td ng-click="editPlaylistRow(p.id,$index)">
+							<td>
 								<span ng-show="!modifyRow">{{ t.artist }}</span>
 								<input type="text" 
 									ng-model="t.artist" 
 									ng-show="modifyRow" 
 									onclick="this.select()"></input>
 							</td>
-							<td ng-click="editPlaylistRow(p.id,$index)">
+							<td>
 								<span ng-show="!modifyRow">{{ t.title }}</span>
 								<input type="text" 
 									ng-model="t.title" 
 									ng-show="modifyRow" 
 									onclick="this.select()"></input>
 							</td>
-							<td ng-click="editPlaylistRow(p.id,$index)">
-								<a ng-show="!modifyRow" target="_blank" href="{{ t.ytlink }}">{{ t.ytlink }}</a>
+							<td>
+								<a ng-click="$event.stopPropagation();" ng-show="!modifyRow" target="_blank" href="{{ t.ytlink }}">{{ t.ytlink }}</a>
 								<input type="text" 
 									ng-model="t.ytlink" 
 									ng-show="modifyRow || !t.ytlink" 

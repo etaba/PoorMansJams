@@ -11,7 +11,7 @@ PoorMansJamsApp/static/scripts.*
 PoorMansJamsApp/static/styles.*.css
 PoorMansJamsApp/static/script.*.js
 PoorMansJamsApp/static/auth.*.js
-PoorMansJamsApp/static/styleSheetTemplate.*.css
+PoorMansJamsApp/static/customSheets/styleSheetTemplate.*.css
 
 
 
@@ -44,11 +44,13 @@ PoorMansJamsApp/static/styleSheetTemplate.*.css
 *.log
 *.sql
 *.sqlite
+*.sqlite3
 
 # OS generated files #
 ######################
 .DS_Store
 .DS_Store?
+**.DS_Store
 ._*
 .Spotlight-V100
 .Trashes

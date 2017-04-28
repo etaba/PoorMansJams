@@ -1,33 +1,12 @@
+{% extends "PoorMansJamsApp/base.html" %}
 <!DOCTYPE html>
-{% load static %}
-<head>
-	<title>Spotify Playlist Selection</font></title>
-	<center>
-	<h1><font color="#cf66ff">Select Playlists</font></h1>
-	<center>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- Latest AngularJS -->
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
-		<!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-		<!-- jQuery library -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-		<!-- Latest compiled JavaScript -->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-		<!-- Angular Routes -->
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
-		<!--Angular Bootstrap UI-->
-		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
-		<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
-		<!-- My script and css -->
-		<!--<script src="{% static "script.js" %}"></script>-->
-		{% load pipeline %}
-		{% javascript 'scripts' %}
-		<link rel="stylesheet" href="{% static "styles.css" %}"></link>
-</head>
+<!--{% load static %}-->
+{%block content%}
 <body ng-app="myApp" ng-keypress="onKeyPress($event,entry)">
+<title>Spotify Playlist Selection</font></title>
+	<center>
+	<h1><font class="primary-color">Select Playlists</font></h1>
+	<center>
 {%verbatim%}
 <div ng-controller="spotifyCtrl">
 <br>
@@ -60,3 +39,4 @@
 </center>
 </div>
 </body>
+{%endblock%}

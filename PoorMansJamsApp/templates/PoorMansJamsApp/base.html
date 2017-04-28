@@ -16,9 +16,8 @@
 		<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
 		<!--jscolor color input field color code palette-->
 		<script src="static/jscolor.min.js"></script>
-		{%verbatim%}
-		<link rel="stylesheet" ng-href="{{dynamicStylesheet}}">
-		</link>{%endverbatim%}
+		{%verbatim%}<link rel="stylesheet" ng-href="{{dynamicStylesheet}}"></link>{%endverbatim%}
+		{% load static %}
 		{% load pipeline %}
 		{% javascript 'scripts' %}
 		<!-- Google API -->
