@@ -3,9 +3,7 @@
 PoorMansJamsApp/static/customSheets/styles_*
 PoorMansJamsApp/savedSheets/*
 oldBackendDownloadCode.js
-#minified JS
-PoorMansJamsApp/static/styles*
-#cache busted js
+#minified and cache busted js
 PoorMansJamsApp/static/jscolor.min.*.js
 PoorMansJamsApp/static/scripts.*
 PoorMansJamsApp/static/styles.*.css
