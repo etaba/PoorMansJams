@@ -119,7 +119,7 @@ def changeStyleSheet(request):
 		if os.environ.get('DJANGO_DEVELOPMENT') is not None:
 			staticRoot = os.getcwd()+"PoorMansJamsApp/"
 		else:
-			sourceRoot = "public/"
+			sourceRoot = os.getcwd()+"public/"
 		os.remove(staticRoot + request.POST['oldSheet'])
 	return HttpResponse(json.dumps({'newStylesheet': newSheet}),content_type="application/json")
 
