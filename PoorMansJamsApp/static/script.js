@@ -452,7 +452,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
 app.controller('headCtrl', ['$scope', '$http', '$window', function($scope, $http, $window) {
     $scope.debugMode = false;
-    $scope.dynamicStylesheet = "/static/styles.css"
+    $scope.dynamicStylesheet = "static/styles.css"
     $scope.PRIMARY = "cf66ff";
     $scope.SECONDARY = "ffe866";
     $scope.PRIMARY_LIGHT = "efccff";
@@ -472,7 +472,8 @@ app.controller('headCtrl', ['$scope', '$http', '$window', function($scope, $http
                 'HOVER_ROW': HOVER_ROW,
                 'BACKGROUND': BACKGROUND,
                 'OPACITY': OPACITY,
-                'ERROR_ROW': "ff6666"
+                'ERROR_ROW': "ff6666",
+                'oldSheet':$scope.dynamicStylesheet
             }
         }).then(function success(response) {
             var newStyle = response.data['newStylesheet'];
@@ -480,8 +481,36 @@ app.controller('headCtrl', ['$scope', '$http', '$window', function($scope, $http
         }, function error(response) {
             alert('something went wrong. did you enter a color for each??')
         });
-    };
+        $scope.PRIMARY = PRIMARY
+        $scope.SECONDARY = SECONDARY
+        $scope.PRIMARY_LIGHT = PRIMARY_LIGHT
+        $scope.SUCCESS_ROW = SUCCESS_ROW
+        $scope.BACKGROUND = BACKGROUND
+        $scope.HOVER_ROW = HOVER_ROW
+    }
 
+    $scope.randomStyle = function(){
+        $scope.changeStyle(randColor(),randColor(),randColor(),randColor(),randColor(),randColor(),"1");
+    }
+
+    randColor = function(){
+        hex = "0123456789ABCDEF";
+        randDigit = function() { return hex[getRandomInt(0,hex.length)]};
+        return randDigit() +
+                randDigit() +
+                randDigit() +
+                randDigit() +
+                randDigit() +
+                randDigit();
+
+
+    }
+
+    function getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min)) + min;
+    }
     $scope.saveStyle = function() {
         $http({
             url: "saveStyle/",
@@ -496,6 +525,10 @@ app.controller('headCtrl', ['$scope', '$http', '$window', function($scope, $http
             console.log("failed");
         })
     }
+
+    //setInterval( "$scope.randomStyle()", 300 );
+    $scope.randomStyle();
+
 }])
 
 app.controller('spotifyCtrl', ['$scope', '$http', 'ytService', function($scope, $http, ytService) {

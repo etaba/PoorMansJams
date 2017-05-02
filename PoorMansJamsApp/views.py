@@ -103,7 +103,7 @@ def changeStyleSheet(request):
 		staticRoot = "public/"
 	newSheet = "static/customSheets/styles_"+str(randint(10000,99999))+".css"
 	newCss = open(staticRoot + newSheet,'w+')
-	templateCss = open(staticRoot + "static/customSheets/stylesheetTemplate.css",'r')
+	templateCss = open(staticRoot + "static/stylesheetTemplate.css",'r')
 	for line in templateCss.readlines():
 		firstDelim = line.find('%')
 		if firstDelim != -1:
@@ -114,6 +114,13 @@ def changeStyleSheet(request):
 			newCss.write(line)
 	newCss.close()
 	templateCss.close()
+	if "customSheets/styles_" in request.POST['oldSheet']:
+		print "deleting " + request.POST['oldSheet']
+		if os.environ.get('DJANGO_DEVELOPMENT') is not None:
+			staticRoot = os.getcwd()+"PoorMansJamsApp/"
+		else:
+			sourceRoot = "public/"
+		os.remove(staticRoot + request.POST['oldSheet'])
 	return HttpResponse(json.dumps({'newStylesheet': newSheet}),content_type="application/json")
 
 def saveStyle(request):

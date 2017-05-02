@@ -75,6 +75,7 @@
 			<label ng-show="debugMode" for="OPACITY">Opacity (0 to 1):</label>
 			<input ng-show="debugMode" value=="OPACITY" 		onclick="this.select()" type="text" ng-model="OPACITY" 		placeholder="OPACITY" ></input>
 			<br>
+			<button ng-show="debugMode" class="button poormansjams-button"ng-click="randomStyle()">RANDOM</button>
 			<button ng-show="debugMode" class="button poormansjams-button"ng-click="changeStyle(PRIMARY,PRIMARY_LIGHT,SECONDARY,SUCCESS_ROW,HOVER_ROW,BACKGROUND,OPACITY)">APPLY CHANGES</button>
 			<button ng-show="debugMode" class="button poormansjams-button"ng-click="saveStyle()">SUGGEST AS PERMANENT STYLE</button>
 		</div>
