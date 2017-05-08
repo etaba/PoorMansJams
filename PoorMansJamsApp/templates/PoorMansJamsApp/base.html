@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html ng-app="myApp" ng-controller="headCtrl">
-	<head ng-app="myApp" ng-controller="headCtrl">
+	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- Latest AngularJS -->
@@ -22,8 +22,7 @@
 		<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
 		<!-- Y2M API -->
 		<script type="text/javascript" src="https://ytapi.cc/js/link.js"></script>
-
-		{%verbatim%}<link rel="stylesheet" ng-href="{{dynamicStylesheet}}" ></link>{{dynamicStylesheet}}{%endverbatim%}
+		{%verbatim%}<link rel="stylesheet" ng-href="{{dynamicStylesheet}}" ></link>{%endverbatim%}
 	</head>
 	{% block content %}{% endblock %}
 </html>

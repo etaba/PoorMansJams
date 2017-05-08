@@ -433,9 +433,9 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         $scope.importSpotify = true
         var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
         //for development server:
-        var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
+        //var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
         //for production server:
-        //var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
+        var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
         var spotifyScope = "playlist-read-private user-library-read"
         var spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?" + "client_id=" + SPOTIPY_CLIENT_ID + "&redirect_uri=" + SPOTIPY_REDIRECT_URI + "&scope=" + spotifyScope + "&response_type=token&state=123";
         $window.open(spotifyAuthEndpoint, 'spotifyIFrame', 'height=500,width=400');
@@ -503,9 +503,9 @@ app.controller('headCtrl', ['$scope', '$http', '$window', function($scope, $http
         }).then(function success(response) {
             var newStyle = response.data['newStylesheet'];
             $scope.dynamicStylesheet = newStyle;
-            //$scope.$apply();
+            setTimeout(function(){$scope.$apply()},1000);
         }, function error(response) {
-            alert('something went wrong. did you enter a color for each??')
+            alert('something went wrong. did you enter a color for each?')
         });
         $scope.PRIMARY = PRIMARY
         $scope.SECONDARY = SECONDARY
