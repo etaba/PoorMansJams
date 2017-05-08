@@ -117,7 +117,7 @@ def changeStyleSheet(request):
 	if "customSheets/styles_" in request.POST['oldSheet']:
 		print "deleting " + request.POST['oldSheet']
 		if os.environ.get('DJANGO_DEVELOPMENT') is not None:
-			staticRoot = os.getcwd()+"PoorMansJamsApp/"
+			staticRoot = os.getcwd()+"/PoorMansJamsApp/"
 		else:
 			sourceRoot = os.getcwd()+"public/"
 		os.remove(staticRoot + request.POST['oldSheet'])

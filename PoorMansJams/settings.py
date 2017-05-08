@@ -141,6 +141,7 @@ PIPELINE = {
             'source_filenames': (
               'auth.js',
               'script.js',
+              'jscolor.js',
             ),
             'output_filename': 'scripts.js',
         }

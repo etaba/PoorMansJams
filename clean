@@ -1,0 +1,8 @@
+	rm PoorMansJamsApp/static/customSheets/*
+	rm PoorMansJamsApp/static/scripts*
+	rm PoorMansJamsApp/static/auth.*.js
+	rm PoorMansJamsApp/static/jscolor.*.js
+	rm PoorMansJamsApp/static/script.*.js
+	rm PoorMansJamsApp/static/stylesheetTemplate.*.css
+	rm PoorMansJamsApp/static/styles.*.css
+

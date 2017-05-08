@@ -1,15 +1,18 @@
 # Temporary Stuff #
 ###################
+PoorMansJamsApp/static/customSheets
 PoorMansJamsApp/static/customSheets/styles_*
 PoorMansJamsApp/savedSheets/*
 oldBackendDownloadCode.js
 #minified and cache busted js
 PoorMansJamsApp/static/jscolor.min.*.js
+PoorMansJamsApp/static/jscolor.*.js
 PoorMansJamsApp/static/scripts.*
 PoorMansJamsApp/static/styles.*.css
 PoorMansJamsApp/static/script.*.js
 PoorMansJamsApp/static/auth.*.js
-PoorMansJamsApp/static/customSheets/styleSheetTemplate.*.css
+PoorMansJamsApp/static/_*.css
+PoorMansJamsApp/static/styleSheetTemplate.*.css
 
 
 

@@ -1,5 +1,6 @@
-<html  ng-app="myApp" ng-controller="headCtrl">
-	<head ng-app="myApp" >
+<!DOCTYPE html>
+<html ng-app="myApp" ng-controller="headCtrl">
+	<head ng-app="myApp" ng-controller="headCtrl">
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- Latest AngularJS -->
@@ -14,10 +15,7 @@
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
 		<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
-		<!--jscolor color input field color code palette-->
-		<script src="static/jscolor.min.js"></script>
-		{%verbatim%}<link rel="stylesheet" ng-href="{{dynamicStylesheet}}"></link>{%endverbatim%}
-		{% load static %}
+
 		{% load pipeline %}
 		{% javascript 'scripts' %}
 		<!-- Google API -->
@@ -25,60 +23,7 @@
 		<!-- Y2M API -->
 		<script type="text/javascript" src="https://ytapi.cc/js/link.js"></script>
 
-		<nav class="navbar navbar-default navbar-fixed-top header-row">
-			<div class="container-fluid header-row">
-				<!-- Brand and toggle get grouped for better mobile display -->
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					</button>
-					<a class="navbar-brand" href="/"><font class="secondary-color">Poor Man's Jams</font></a>
-				</div>
-				<!-- Collect the nav links, forms, and other content for toggling -->
-				<div class="collapse navbar-collapse header-row" id="bs-example-navbar-collapse-1">
-					<ul class="nav navbar-nav navbar-right">
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><font class="secondary-color">More <span class="caret"></span></font></a>
-							<ul class="dropdown-menu">
-								<li ><a href="/termsOfService">Terms of Service</a></li>
-								<li><a href="#" onClick="alert('For questions or concerns email info@poormansjams.com')">Contact</a></li>
-								<li role="separator" class="divider"></li>
-								<li><a href="#" ng-click="debugMode = !debugMode">Help me color this: {%verbatim%}{{debugMode ? "ON" : "OFF"}}{%endverbatim%}</a></li>
-								<li><a href="#"ng-click="alert('Please enter the artist and title and the youtube link you wish was used')">Report Smart Search Fail (Coming soon)</a></li>
-							</ul>
-						</li>
-					</ul>
-				</div>
-				<!-- /.navbar-collapse -->
-			</div>
-			<!-- /.container-fluid -->
-		</nav>
-		<br>
-		<br>
-		<br>
-		<div>
-			<label ng-show="debugMode" for="PRIMARY">Primary:</label>
-			<input ng-show="debugMode" class="jscolor" value=="PRIMARY" 		onclick="this.select()" type="text" ng-model="PRIMARY" 		placeholder="PRIMARY"></input>
-			<label ng-show="debugMode" for="PRIMARY_LIGHT">Subheader/downloading row:</label>
-			<input ng-show="debugMode" class="jscolor" value=="PRIMARY_LIGHT" onclick="this.select()" type="text" ng-model="PRIMARY_LIGHT" placeholder="PRIMARY_LIGHT"></input>
-			<label ng-show="debugMode" for="SECONDARY">Secondary:</label>
-			<input ng-show="debugMode" class="jscolor" value=="SECONDARY" 	onclick="this.select()" type="text" ng-model="SECONDARY" 	placeholder="SECONDARY"></input>
-			<label ng-show="debugMode" for="SUCCESS_ROW">Row download complete:</label>
-			<input ng-show="debugMode" class="jscolor" value=="SUCCESS_ROW" 	onclick="this.select()" type="text" ng-model="SUCCESS_ROW" 	placeholder="SUCCESS_ROW"></input>
-			<label ng-show="debugMode" for="HOVER_ROW">Hovering on row:</label>
-			<input ng-show="debugMode" class="jscolor" value=="HOVER_ROW" 	onclick="this.select()" type="text" ng-model="HOVER_ROW" 	placeholder="HOVER_ROW"></input>
-			<label ng-show="debugMode" for="BACKGROUND">Background:</label>
-			<input ng-show="debugMode" class="jscolor" value=="BACKGROUND" 	onclick="this.select()" type="text" ng-model="BACKGROUND" 	placeholder="BACKGROUND"></input>
-			<label ng-show="debugMode" for="OPACITY">Opacity (0 to 1):</label>
-			<input ng-show="debugMode" value=="OPACITY" 		onclick="this.select()" type="text" ng-model="OPACITY" 		placeholder="OPACITY" ></input>
-			<br>
-			<button ng-show="debugMode" class="button poormansjams-button"ng-click="randomStyle()">RANDOM</button>
-			<button ng-show="debugMode" class="button poormansjams-button"ng-click="changeStyle(PRIMARY,PRIMARY_LIGHT,SECONDARY,SUCCESS_ROW,HOVER_ROW,BACKGROUND,OPACITY)">APPLY CHANGES</button>
-			<button ng-show="debugMode" class="button poormansjams-button"ng-click="saveStyle()">SUGGEST AS PERMANENT STYLE</button>
-		</div>
+		{%verbatim%}<link rel="stylesheet" ng-href="{{dynamicStylesheet}}" ></link>{{dynamicStylesheet}}{%endverbatim%}
 	</head>
 	{% block content %}{% endblock %}
 </html>

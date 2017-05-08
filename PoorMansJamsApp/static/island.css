@@ -1,71 +1,72 @@
-/*Header Row/Title/Add Button: cf66ff
-  Track Row/Input Fields/Button Background: ffe866
-  Playlist/Downloading Row: efccff
-  Complete Row: 96ff66
+/*Header Row/Title/Add Button: 2459BC
+  Track Row/Input Fields/Button Background: 6F9B90
+  Playlist/Downloading Row: 3D4CFA
+  Complete Row: 5C6BA7
   Error Row: ff6666
-  Background: 000000
-  Hover Row: efccff;
+  Background: B2F8F2
+  Hover Row: 6CD750;
+  Opacity: 1;
 */
+label{
+  background-color:black;
+  color:white;
+}
+p{
+  background-color:black;
+  color:#cf66ff;
+}
 div{
   opacity: 1;
 }
-label{
-  background-color:white;
-  color:black;
-}
-p{
-  background-color:white;
-  color:black;
-}
 input[type="text"]::-webkit-input-placeholder {
-    color: #cf66ff;
+    color: #2459BC;
 }
 body{
-  background-color: #000000;
+  background-color: #B2F8F2;
 }
 tr{
   border: solid black;
 }
 input{
-  border: solid #cf66ff 2px;
-  background-color: #ffe866;
+  border: solid #2459BC 2px;
+  background-color: #6F9B90;
 }
 .title{
-  color: #cf66ff;
+  color: #2459BC;
 }
 .primary-color{
-  color:#cf66ff;
+  color:#2459BC;
 }
 .secondary-color{
-  color: #ffe866;
+  color: #6F9B90;
 }
 .playlist-row{
-  background-color:#efccff;
+  background-color:#3D4CFA;
 }
 .header-row{
-  background-color:#cf66ff;
+  background-color:#2459BC;
 }
 .complete-row{
-  background-color:#96ff66;
+  background-color:#5C6BA7;
 }
 .error-row{
   background-color:#ff6666;
 }
 .downloading-row{
-  background-color:#efccff;
+  background-color:#3D4CFA;
 }
 .default-row{
-  background-color:#ffe866;
+  background-color:#6F9B90;
 }
 .hovering-row{
-  background-color:#efccff;
+  background-color:#6CD750;
 }
 .button{
-  background-color: #ffe866;
-  color: #cf66ff;
+  background-color: #6F9B90;
+  color: #2459BC;
 }
 .background-color{
-  background-color:#000000;
+  background-color:#B2F8F2;
 }
 
 .glyphicon-refresh-animate {
@@ -83,7 +84,7 @@ input{
     to { transform: scale(1) rotate(360deg);}
 }
 .add-button {
-  background-color:#cf66ff;
+  background-color:#2459BC;
 }
 
 .poormansjams-button {
@@ -91,17 +92,17 @@ input{
   -moz-border-radius: 6;
   border-radius: 6px;
   font-family: Arial;
-  color: #cf66ff;
+  color: #2459BC;
   font-size: 17px;
-  background: #ffe866;
+  background: #6F9B90;
   padding: 6px 20px 10px 20px;
-  border: solid #cf66ff 2px;
+  border: solid #2459BC 2px;
   text-decoration: none;
 }
 
 .poormansjams-button:hover {
-  background: #cf66ff;
-  border: solid #ffe866 2px;
-  color: #ffe866;
+  background: #2459BC;
+  border: solid #6F9B90 2px;
+  color: #6F9B90;
   text-decoration: none;
 }

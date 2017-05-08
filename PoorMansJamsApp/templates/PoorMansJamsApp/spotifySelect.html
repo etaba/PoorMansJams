@@ -1,6 +1,4 @@
 {% extends "PoorMansJamsApp/base.html" %}
-<!DOCTYPE html>
-<!--{% load static %}-->
 {%block content%}
 <body ng-app="myApp" ng-keypress="onKeyPress($event,entry)">
 <title>Spotify Playlist Selection</font></title>
@@ -21,6 +19,8 @@
 <button class="poormansjams-button" 
 	ng-click="addPlaylistsToQueue()"
 	ng-show="playlists.length > 0">Import</button>
+<button class="poormansjams-button" 
+	ng-click="cancel()">Cancel</button>
 <div ng-show="pageStatus == 'LOADING'">
 <font class="primary-color"><h4>Loading Your Playlists </h4></font>
 <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"

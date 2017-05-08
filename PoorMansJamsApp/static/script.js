@@ -6,7 +6,7 @@ googleApiClientReady = function() {
     });
 }
 
-var app = angular.module('myApp', ['ngAnimate', 'ngSanitize', 'ui.bootstrap']);
+var app = angular.module('myApp', ['ngSanitize', 'ui.bootstrap']);
 
 app.config(['$httpProvider', function($httpProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -124,6 +124,8 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
             'ytlink': ''
         };
         $scope.entry.entryType = "Track";
+        $scope.importSpotify = false;
+        $scope.loading = false;
     }
 
     $scope.removeLinkError = function(track) {
@@ -221,6 +223,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     }
 
     $scope.processEntry = function(entry) {
+        $scope.loading = true;
         var entryCopy = {
             'artist': entry.artist,
             'title': entry.title,
@@ -239,6 +242,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                 parser = new DOMParser();
                 xmlResponse = parser.parseFromString(response.data, "text/xml");
                 tracks = xmlResponse.getElementsByTagName("track");
+                console.log(tracks);
                 for(track of tracks) {
                     $scope.addTrack({
                         'artist': entryCopy.artist,
@@ -246,11 +250,15 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                         'ytlink': ""
                     })
                 }
+                $scope.loading=false;
+                $scope.$apply();
             }, function error() {
                 alert("Could not find that album :(");
+                $scope.loading=false;
             })
         } else {
             $scope.addTrack(entryCopy);
+            $scope.loading=false;
         }
     }
 
@@ -382,38 +390,55 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     var importSpotifyPlaylists = function(event) {
         if(event.key == "selectedPlaylists") {
             var spotifyPlaylists = JSON.parse(event.newValue);
-            spotifyPlaylists.forEach(function(playlist) {
-                $scope.selectedPlaylists.push(playlist);
-                playlist.tracks.forEach(function(track) {
-                    if(track.ytlink == undefined) //link not provided
-                    {
-                        track.ytlink = "Smart Search..."
-                        findNthBestLink(track, 1).then(function(best) {
-                            if(track.ytlink == "Smart Search...") {
-                                track.ytlink = best['link'];
-                            }
-                        }, function error(response) {
-                            if(track.ytlink == "Smart Search...") {
-                                track['status'] = 'ERROR';
-                                track['err'] = "Smart search failed. Please enter a link.";
-                                track['ytlink'] = "Link Needed"
-                            }
-                        });
+            if (spotifyPlaylists != "") {
+                spotifyPlaylists.forEach(function(playlist) {
+                    var duplicate = $scope.selectedPlaylists.find(function(p, i) {
+                        if(p.name == playlist.name) {
+                            return p;
+                        }
+                    });
+                    if(duplicate != undefined) {
+                        //TODO: do something to duplicate row
+                        alert(playlist.name+" is already in list. Skipping.");
+                        return
                     }
+                    $scope.selectedPlaylists.push(playlist);
+                    playlist.tracks.forEach(function(track) {
+                        if(track.ytlink == undefined) //link not provided
+                        {
+                            track.ytlink = "Smart Search..."
+                            findNthBestLink(track, 1).then(function(best) {
+                                if(track.ytlink == "Smart Search...") {
+                                    track.ytlink = best['link'];
+                                }
+                            }, function error(response) {
+                                if(track.ytlink == "Smart Search...") {
+                                    track['status'] = 'ERROR';
+                                    track['err'] = "Smart search failed. Please enter a link.";
+                                    track['ytlink'] = "Link Needed"
+                                }
+                            });
+                        }
+                    })
                 })
-            })
+            }
+            
+            $scope.importSpotify = false;
+            $scope.$apply();
         }
+        
     }
 
     $scope.loginSpotify = function() {
+        $scope.importSpotify = true
         var SPOTIPY_CLIENT_ID = "6ddf2f4253a847c5bac62b17cd735e66"
         //for development server:
-        //var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
+        var SPOTIPY_REDIRECT_URI = "http://127.0.0.1:8000/callback/"
         //for production server:
-        var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
+        //var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
         var spotifyScope = "playlist-read-private user-library-read"
         var spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?" + "client_id=" + SPOTIPY_CLIENT_ID + "&redirect_uri=" + SPOTIPY_REDIRECT_URI + "&scope=" + spotifyScope + "&response_type=token&state=123";
-        $window.open(spotifyAuthEndpoint, 'callBackWindow', 'height=500,width=400');
+        $window.open(spotifyAuthEndpoint, 'spotifyIFrame', 'height=500,width=400');
         $window.addEventListener("storage", importSpotifyPlaylists);
     }
 
@@ -452,7 +477,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
 app.controller('headCtrl', ['$scope', '$http', '$window', function($scope, $http, $window) {
     $scope.debugMode = false;
-    $scope.dynamicStylesheet = "static/styles.css"
+    $scope.dynamicStylesheet = "/static/island.css"
     $scope.PRIMARY = "cf66ff";
     $scope.SECONDARY = "ffe866";
     $scope.PRIMARY_LIGHT = "efccff";
@@ -478,6 +503,7 @@ app.controller('headCtrl', ['$scope', '$http', '$window', function($scope, $http
         }).then(function success(response) {
             var newStyle = response.data['newStylesheet'];
             $scope.dynamicStylesheet = newStyle;
+            //$scope.$apply();
         }, function error(response) {
             alert('something went wrong. did you enter a color for each??')
         });
@@ -527,11 +553,12 @@ app.controller('headCtrl', ['$scope', '$http', '$window', function($scope, $http
     }
 
     //setInterval( "$scope.randomStyle()", 300 );
-    $scope.randomStyle();
+    //$scope.randomStyle();
 
 }])
 
 app.controller('spotifyCtrl', ['$scope', '$http', 'ytService', function($scope, $http, ytService) {
+    
     var init = function() {
         //grant = {'access_token','state','token_type','expires_in'}
         $scope.spotifyGrant = $scope.parseHash(String(window.location.hash));
@@ -628,6 +655,12 @@ app.controller('spotifyCtrl', ['$scope', '$http', 'ytService', function($scope, 
         localStorage.setItem('selectedPlaylists', JSON.stringify(selectedPlaylists));
         window.close();
     };
+
+    $scope.cancel = function() {
+        localStorage.clear();
+        localStorage.setItem('selectedPlaylists', JSON.stringify(""));
+        window.close();
+    }
 
     $scope.onKeyPress = function($event, entry) {
         if($event.keyCode == 13) {
