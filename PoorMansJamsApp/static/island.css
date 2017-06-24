@@ -31,6 +31,26 @@ input{
   border: solid #2459BC 2px;
   background-color: #6F9B90;
 }
+select{
+  border: solid #2459BC 2px;
+  background-color: #6F9B90;
+}
+
+.Row
+{
+    display: table;
+    width: 100px;
+    border-spacing: 0px;
+    table-layout: fixed;
+}
+.Column
+{
+    display: table-cell;
+    border-spacing: 0px;
+    width: 150px;
+
+}
+
 .title{
   color: #2459BC;
 }

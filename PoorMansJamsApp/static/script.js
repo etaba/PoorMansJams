@@ -17,6 +17,19 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
     var service = {};
 
     service.downloadSingleTrackFrontEnd = function(track, i) {
+        /*youtube6 api test code
+        var placeholder = document.getElementById('y2m_placeholder');
+        var a = document.createElement('a');
+        var ytID = track.ytlink.substr(track.ytlink.indexOf("v=")+2);
+        a.href = "http://api.youtube6download.top/fetch/link.php?i=" + ytID;
+        a.target="_blank"
+        a.download="test.mp3"
+        //a.rel = "nofollow";
+        placeholder.appendChild(a);
+        a.click();
+        return;
+        */
+
         //ATTEMPT 1 - works the first time, then same video downloaded for all subsequent tries
         //var a = document.getElementById('y2mp3Link_'+i.toString());
         if(i >= 1000) {
@@ -90,7 +103,7 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
                         reject();
                     }
                     var detailsRequest = gapi.client.youtube.videos.list({
-                        part: 'contentDetails', //add 'statistics' for view count info 
+                        part: 'contentDetails,statistics', //add ',statistics' for view count info 
                         id: ids
                     })
                     detailsRequest.execute(function(response) {
@@ -102,6 +115,11 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
                                 }
                             });
                             searchResult['duration'] = item.contentDetails.duration;
+                            searchResult['views'] = item.statistics.viewCount;
+                            searchResult['dislikes'] = item.statistics.dislikeCount;
+                            searchResult['likes'] = item.statistics.likeCount;
+                            searchResult['favorites'] = item.statistics.favoriteCount;
+                            searchResult['comments'] = item.statistics.commentCount;
                         });
                         resolve(ytSearchResults);
                     })
@@ -115,6 +133,7 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
 
 
 app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
+
     var init = function() {
         document.getElementById("artist_input").focus();
         $scope.selectedPlaylists = [];
@@ -222,6 +241,24 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         });
     }
 
+    $scope.debugSearch = function(entry) {
+        var track = {
+            'artist': entry.artist,
+            'title': entry.title,
+            'ytlink': entry.ytlink,
+            'entryType': entry.entryType
+        };
+        if(track.artist === "" && track.title == "" && track.ytlink == "") {
+            document.getElementById("artist_input").focus();
+            return;
+        }
+        findNthBestLink(track, 2).then(function(results) {
+            $scope.linkData = results
+        }, function error(response) {
+            $scope.linkData = [{'title':"search failed"}]
+        });
+    }
+
     $scope.processEntry = function(entry) {
         $scope.loading = true;
         var entryCopy = {
@@ -243,7 +280,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                 xmlResponse = parser.parseFromString(response.data, "text/xml");
                 tracks = xmlResponse.getElementsByTagName("track");
                 console.log(tracks);
-                for(track of tracks) {
+                for(track of Array.from(tracks)) {
                     $scope.addTrack({
                         'artist': entryCopy.artist,
                         'title': track.getElementsByTagName('name')[0].innerHTML,
@@ -251,7 +288,6 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                     })
                 }
                 $scope.loading=false;
-                $scope.$apply();
             }, function error() {
                 alert("Could not find that album :(");
                 $scope.loading=false;
@@ -260,62 +296,6 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
             $scope.addTrack(entryCopy);
             $scope.loading=false;
         }
-    }
-
-    var findNthBestLink = function(track, n) {
-        return $q(function(resolve, reject) {
-            var searchString = track['artist'] + ' ' + track['title'];
-            console.log(searchString);
-            ytService.getYtLink(searchString).then(function success(results) {
-                badKeywords = ["video", "album", "live", "cover", "remix", "instrumental", "acoustic", "karaoke"]
-                goodKeywords = ["audio", "lyric"]
-
-                badKeywords = badKeywords.filter(function(bK) {
-                    if(searchString.indexOf(bK) == -1) {
-                        return bK;
-                    }
-                });
-
-                var scoreIndex = [];
-                results.forEach(function(result, i) {
-                    var matchScore = i;
-                    badKeywords.forEach(function(bK) {
-                        if(result['title'].indexOf(bK) != -1) {
-                            matchScore += 1.1;
-                        }
-                    })
-                    goodKeywords.forEach(function(gK) {
-                        if(result['title'].indexOf(gK) != -1) {
-                            matchScore -= 1.1;
-                        }
-                    })
-                    if(result['title'].indexOf(track['artist'].replace('the ', '')) != -1) {
-                        matchScore -= 5;
-                    }
-                    if(result['title'].indexOf(track['title']) != -1) {
-                        matchScore -= 3;
-                    }
-                    scoreIndex.push([i, matchScore])
-                });
-                var bestToWorst = scoreIndex.sort(function(a, b) {
-                    return a[1] - b[1];
-                })
-                var nthBestIndex = bestToWorst[n - 1][0]
-                resolve(results[nthBestIndex]);
-            }, function error() {
-                //try getting link using poormansjams server's algorithm implementation (which for some lame reason yields different results)
-                $http({
-                    url: "getYtlink/",
-                    method: 'POST',
-                    data: track
-                }).then(function success(response) {
-                    resolve(response.data);
-                }, function error(response) {
-                    reject();
-                });
-            });
-        })
-
     }
 
     $scope.addTrack = function(entry) {
@@ -368,6 +348,74 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         $scope.entry.ytlink = "";
         document.getElementById("artist_input").select();
     }
+
+    var findNthBestLink = function(track, n) {
+        return $q(function(resolve, reject) {
+            var searchString = track['artist'] + ' ' + track['title'];
+            console.log(searchString);
+            ytService.getYtLink(searchString).then(function success(results) {
+                badKeywords = ["video", "album", "live", "cover", "remix", "instrumental", "acoustic", "karaoke"]
+                goodKeywords = ["audio", "lyric"]
+
+                badKeywords = badKeywords.filter(function(bK) {
+                    if(searchString.indexOf(bK) == -1) {
+                        return bK;
+                    }
+                });
+
+                var scoreIndex = [];
+                results.forEach(function(result, i) {
+                    var matchScore = i;
+                    badKeywords.forEach(function(bK) {
+                        if(result['title'].indexOf(bK) != -1) {
+                            matchScore += 1.1;
+                        }
+                    })
+                    goodKeywords.forEach(function(gK) {
+                        if(result['title'].indexOf(gK) != -1) {
+                            matchScore -= 1.1;
+                        }
+                    })
+                    if(result['title'].indexOf(track['artist'].replace('the ', '')) != -1) {
+                        matchScore -= 5;
+                    }
+                    if(result['title'].indexOf(track['title']) != -1) {
+                        matchScore -= 3;
+                    }
+                    scoreIndex.push([i, matchScore])
+                });
+                var bestToWorst = scoreIndex.sort(function(a, b) {
+                    return a[1] - b[1];
+                })
+                if(n==2){
+                    searchResults = []
+                    for(j=0;j<5;j++){
+                        resultDetails = results[bestToWorst[j][0]]
+                        resultDetails['originalOrder'] = bestToWorst[j][0]
+                        resultDetails['algScore'] = bestToWorst[j][1]
+                        searchResults.push(resultDetails)
+                    }
+                    resolve(searchResults);
+                }
+                var nthBestIndex = bestToWorst[n - 1][0]
+                resolve(results[nthBestIndex]);
+            }, function error() {
+                //try getting link using poormansjams server's algorithm implementation (which for some lame reason yields different results)
+                $http({
+                    url: "getYtlink/",
+                    method: 'POST',
+                    data: track
+                }).then(function success(response) {
+                    resolve(response.data);
+                }, function error(response) {
+                    reject();
+                });
+            });
+        })
+
+    }
+
+
 
     $scope.deletePlaylist = function(playlistID) {
         $scope.selectedPlaylists = $scope.selectedPlaylists.filter(function(playlist) {
@@ -438,7 +486,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         var SPOTIPY_REDIRECT_URI = "http://www.poormansjams.com/callback/"
         var spotifyScope = "playlist-read-private user-library-read"
         var spotifyAuthEndpoint = "https://accounts.spotify.com/authorize?" + "client_id=" + SPOTIPY_CLIENT_ID + "&redirect_uri=" + SPOTIPY_REDIRECT_URI + "&scope=" + spotifyScope + "&response_type=token&state=123";
-        $window.open(spotifyAuthEndpoint, 'spotifyIFrame', 'height=500,width=400');
+        $window.open(spotifyAuthEndpoint,'callBackWindow','height=500,width=400');
         $window.addEventListener("storage", importSpotifyPlaylists);
     }
 

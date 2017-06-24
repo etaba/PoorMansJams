@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseServerError
 from django.urls import reverse
+from django.views.decorators.clickjacking import xframe_options_exempt
 from spotipy import oauth2
 import os, zipfile, json, grattify, spotipy
 import shutil
@@ -17,6 +18,9 @@ def index(request):
 
 def termsOfService(request):
 	return render(request,'PoorMansJamsApp/termsOfService.html');
+
+def searchAnalysis(request):
+	return render(request,'PoorMansJamsApp/searchAnalysis.html');
 
 def downloadSingleTrack(request):
 	saveDir = "songCache"
@@ -79,8 +83,11 @@ def getYtlink(request):
 		response_data = {'link': nthBest['link']}
 		return HttpResponse(json.dumps(response_data),content_type="application/json")
 
+
 def callback(request):
-	return render(request, 'PoorMansJamsApp/spotifySelect.html',{})
+	response = render(request, 'PoorMansJamsApp/spotifySelect.html',{})
+	response['X-Frame-Options'] = 'SAMEORIGIN'
+	return response
 
 
 def getAlbumTracks(request):
