@@ -17,3 +17,10 @@ To interact with prod server
 3) When repo is up to date, run 'python manage.py collectstatic' to copy and minify JS and stylesheets
 4) To apply changes, run 'touch ~/poormansjams.com/tmp/restart.txt'
 5) Changes should now be propagated and observable through the browser
+
+TODO:
+album error handle
+import spotify twice
+download, add, download again
+redownload row
+detect html downloaded instead of mp3?
