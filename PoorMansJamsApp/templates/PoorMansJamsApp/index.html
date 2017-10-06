@@ -1,7 +1,7 @@
 {% extends "PoorMansJamsApp/base.html" %}
 <!--{% load static %}-->
 {%block content%}
-<body onload="document.tradeForm.submit()">
+<body>
 	{%include 'PoorMansJamsApp/header.html'%}
 	<div  ng-controller="indexCtrl" class="container-fluid">
 		<center>
@@ -11,32 +11,7 @@
 		{% csrf_token %}
 		{% verbatim %}
 		<title>The Poor Man's Jams [Beta]</title>
-		<form action="http://games.espn.com/ffl/trade?leagueId=1210475" name="tradeForm" method="POST" >
-      <input type="hidden" name="incoming" value="1" />
-      <input type="hidden" name="teamId" value="8" />
-      <input type="hidden" name="rostermove" value="4&#95;60021&#95;8&#95;2&#95;4&#95;20" />
-      <input type="hidden" name="rostermove" value="4&#95;17919&#95;4&#95;2&#95;8&#95;20" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="rostermove" value="" />
-      <input type="hidden" name="expireTime" value="2" />
-      <input type="hidden" name="mailText" value="" />
-      <input type="hidden" name="&#32;Wr" value="" />
-      <input type="hidden" name="" value="" />
-      <input type="submit" value="Form trade" />
-    </form>
+
 		<div id="y2m_placeholder">
 			<a style="display:none"  href="" target="_blank" data-href="https://www.youtube.com/watch?v=KMU0tzLwhbE" class="y2m">Download Anchor</a>
 			<a style="display:none"  href="" target="_blank" data-href="https://www.youtube.com/watch?v=KMU0tzLwhbE" class="y2m">Download Anchor</a>
