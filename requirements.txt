@@ -1,0 +1,17 @@
+beautifulsoup4==4.6.0
+bs4==0.0.1
+certifi==2018.4.16
+chardet==3.0.4
+Django==1.11.13
+django-pipeline==1.6.14
+futures==3.2.0
+grattify==0.2.9
+idna==2.7
+mutagen==1.40.0
+python-memcached==1.59
+pytz==2018.4
+requests==2.19.0
+six==1.11.0
+spotipy==2.4.4
+urllib3==1.23
+youtube-dl==2018.6.14
